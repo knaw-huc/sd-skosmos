@@ -14,6 +14,8 @@ $ docker-compose up -d
 ```bash
 $ docker-compose down
 ```
+### Add vocabularies
+Just add the `.ttl` and `.ttl.config` to `data/load` an restart the `skosmos-web` container.
 
 ## License
 [MIT License](LICENSE.md)
