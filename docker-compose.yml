@@ -2,10 +2,7 @@ version: '3.5'
 
 services:
   fuseki:
-    container_name: 'skosmos-fuseki'
-    build:
-      context: .
-      dockerfile: Dockerfile.fuseki
+    image: stain/jena-fuseki:latest
     environment:
       - 'ADMIN_PASSWORD=admin'
       - 'JVM_ARGS=-Xmx2g'
