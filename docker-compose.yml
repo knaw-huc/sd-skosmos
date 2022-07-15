@@ -1,0 +1,33 @@
+version: '3.5'
+
+services:
+  fuseki:
+    container_name: 'skosmos-fuseki'
+    build:
+      context: .
+      dockerfile: Dockerfile.fuseki
+    environment:
+      - 'ADMIN_PASSWORD=admin'
+      - 'JVM_ARGS=-Xmx2g'
+    networks:
+      - skosmos
+    ports:
+      - '3030:3030'
+  skosmos:
+    container_name: 'skosmos-web'
+    build:
+      context: .
+      dockerfile: Dockerfile.skosmos
+    environment:
+      - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
+    networks:
+      - skosmos
+    ports:
+      - '8080:80'
+    volumes:
+      - ./data:/data
+    depends_on:
+      - fuseki
+networks:
+  skosmos:
+    external: false

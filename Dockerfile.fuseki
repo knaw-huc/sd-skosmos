@@ -1,0 +1,4 @@
+FROM stain/jena-fuseki:latest
+
+RUN apt-get update && \
+apt-get install -y curl procps vim git ruby

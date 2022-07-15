@@ -1,0 +1,32 @@
+@prefix city: <https://switch.sd.di.huc.knaw.nl/diplget/vocab/city/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix dep: <https://switch.sd.di.huc.knaw.nl/diplget/vocab/department/> .
+@prefix ent: <https://switch.sd.di.huc.knaw.nl/diplget/vocab/entity/> .
+@prefix euvoc: <http://publications.europa.eu/ontology/euvoc#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl> .
+@prefix post: <https://switch.sd.di.huc.knaw.nl/diplget/vocab/post/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qb: <http://purl.org/linked-data/cube#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema: <http://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix skosthes: <http://purl.org/iso25964/skos-thes#> .
+@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+<https://example.com/cities> a skos:ConceptScheme;
+  dct:title "Cities"@en, "Steden"@nl;
+  skos:hasTopConcept <https://example.com/cities/14>.
+
+<https://example.com/cities/14> a skos:Concept;
+  <http://www.w3.org/2002/07/owlsameAs> <https://www.wikidata.org/wiki/Q3703>;
+  skos:inScheme <https://example.com/cities>;
+  skos:prefLabel "Bamako"@en, "Bamako"@nl;
+  skos:topConceptOf <https://example.com/cities> .
