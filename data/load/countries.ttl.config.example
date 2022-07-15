@@ -1,4 +1,4 @@
-:diplget-cities a skosmos:Vocabulary, void:Dataset ;
+:cities a skosmos:Vocabulary, void:Dataset ;
     dc:title "Cities"@en ;
     dc:subject :cat_sshv ;
     dc:subject :cat_all ;
