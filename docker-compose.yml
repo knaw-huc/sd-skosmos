@@ -14,7 +14,7 @@ services:
     container_name: 'skosmos-web'
     build:
       context: .
-      dockerfile: Dockerfile.skosmos
+      dockerfile: Dockerfile
     environment:
       - SPARQL_ENDPOINT=${SPARQL_ENDPOINT}
     networks:
