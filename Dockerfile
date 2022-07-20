@@ -1,7 +1,7 @@
 FROM library/php:7.3-apache
 
 # set skosmos release version and download link
-ARG version=v2.13
+ARG version=v2.15
 ARG SKOSMOS_TARGZ_RELEASE_URL=https://github.com/NatLibFi/Skosmos/archive/${version}.tar.gz
 
 # general server setup and locale
