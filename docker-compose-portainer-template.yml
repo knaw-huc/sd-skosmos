@@ -1,4 +1,4 @@
-version: '3.5'
+version: '2'
 
 services:
   sd-fuseki:
@@ -13,7 +13,7 @@ services:
     ports:
       - '3030:3030'
   sd-skosmos:
-    image: registry.huc.knaw.nl/tsd/skosmos:v2.15-1.0-RC1
+    image: registry.diginfra.net/tsd/skosmos:v2.15-1.0-RC1
     environment:
       - FUSEKI=http://sd-fuseki:3030
       - SPARQL_ENDPOINT=http://sd-fuseki:3030/skosmos/sparql
