@@ -1,35 +1,46 @@
 version: '2'
 
 services:
-  sd-fuseki:
+  template-fuseki:
     image: stain/jena-fuseki:latest
     environment:
-      - ADMIN_PASSWORD=admin
+      - ADMIN_PASSWORD=template #don't push to github only DI gitlab
       - JVM_ARGS=-Xmx2g
-      - VIRTUAL_HOST=skosmos-fuseki.sd.di.huc.knaw.nl
-      - VIRTUAL_PORT=3030
+      - VIRTUAL_HOST=template-skosmos-fuseki.sd.di.huc.knaw.nl
+      - VIRTUAL_PORT=2030 #adapt as needed on portainer
     networks:
-      - sd-skosmos
+      - template-skosmos
     ports:
-      - '3030:3030'
-  sd-skosmos:
+      - '3030:3030' #adapt as needed on portainer
+  template-skosmos:
     image: registry.diginfra.net/tsd/skosmos:v2.15-1.0-RC4
     environment:
-      - ADMIN_PASSWORD=admin
-      - FUSEKI=http://sd-fuseki:3030
-      - SPARQL_ENDPOINT=http://sd-fuseki:3030/skosmos/sparql
-      - DATA=/data
-      - VIRTUAL_HOST=skosmos.sd.di.huc.knaw.nl
-      - VIRTUAL_PORT=8080
+      - ADMIN_PASSWORD=template #don't push to github only DI gitlab
+      - FUSEKI=http://template-fuseki:3030
+      - SPARQL_ENDPOINT=http://template-fuseki:3030/skosmos/sparql
+      - DATA=/data/template
+      - VIRTUAL_HOST=template-skosmos.sd.di.huc.knaw.nl
+      - VIRTUAL_PORT=8080 #adapt as needed on portainer
     networks:
-      - sd-skosmos
+      - template-skosmos
     ports:
-      - '8080:80'
+      - '8080:80' #adapt as needed on portainer
     volumes:
-      - ./data:/data
+      - template-data:/data
     depends_on:
-      - sd-fuseki
+      - template-fuseki
+      - template-data
+  template-data:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - template-data:/data    
+volumes:
+  template-data:
+    external: false
 networks:
-  sd-skosmos:
+  template-skosmos:
+    #external: false
     external:
       name: nginxproxynetwork
