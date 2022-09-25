@@ -11,7 +11,7 @@ fi
 
 LOADED=`ls ${DATA}/*.loaded | wc -l`
 if [ ${LOADED} -eq 0 ];then
-    curl -u admin:admin -XPOST --data "dbName=skosmos&dbType=tdb" -G ${FUSEKI}/\$/datasets
+    curl -u admin:${ADMIN_PASSWORD} -XPOST --data "dbName=skosmos&dbType=tdb" -G ${FUSEKI}/\$/datasets
     echo "CREATED FUSEKI[${FUSEKI}] DB[skosmos.tdb]"
 else
     echo "EXISTS FUSEKI[${FUSEKI}] DB[skosmos.tdb]"
