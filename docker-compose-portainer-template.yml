@@ -4,8 +4,8 @@ services:
   sd-fuseki:
     image: stain/jena-fuseki:latest
     environment:
-      - 'ADMIN_PASSWORD=admin'
-      - 'JVM_ARGS=-Xmx2g'
+      - ADMIN_PASSWORD=admin
+      - JVM_ARGS=-Xmx2g
       - VIRTUAL_HOST=skosmos-fuseki.sd.di.huc.knaw.nl
       - VIRTUAL_PORT=3030
     networks:
@@ -15,6 +15,7 @@ services:
   sd-skosmos:
     image: registry.diginfra.net/tsd/skosmos:v2.15-1.0-RC4
     environment:
+      - ADMIN_PASSWORD=admin
       - FUSEKI=http://sd-fuseki:3030
       - SPARQL_ENDPOINT=http://sd-fuseki:3030/skosmos/sparql
       - DATA=/data
