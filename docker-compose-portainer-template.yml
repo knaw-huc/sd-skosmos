@@ -17,6 +17,7 @@ services:
     environment:
       - FUSEKI=http://sd-fuseki:3030
       - SPARQL_ENDPOINT=http://sd-fuseki:3030/skosmos/sparql
+      - DATA=/data
       - VIRTUAL_HOST=skosmos.sd.di.huc.knaw.nl
       - VIRTUAL_PORT=8080
     networks:
