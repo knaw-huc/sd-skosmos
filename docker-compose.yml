@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - FUSEKI=${FUSEKI:-http://fuseki:3030}
-      - SPARQL_ENDPOINT=${SPARQL_ENDPOINT:-${FUSEKI}/skosmos/sparql}
+      - SPARQL_ENDPOINT=${SPARQL_ENDPOINT:-http://fuseki:3030/skosmos/sparql}
       - DATA=${DATA:-/data}
     networks:
       - skosmos
