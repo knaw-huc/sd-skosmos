@@ -29,6 +29,8 @@ for VOCAB in `ls *.ttl`; do
             echo "!ERROR: ${DATA}/${VOCAB}.ttl doesn't exist!"
             exit 1
         fi
+        # TODO: delete the del:* properties
+        # TODO: clear the named graph in Fuseki
         curl -X PUT -H Content-Type:text/turtle -T ${VOCAB}.ttl -G ${FUSEKI}/skosmos/data --data-urlencode graph=${GRAPH}
         touch ${DATA}/${VOCAB}.loaded
         echo "... DONE"
