@@ -21,7 +21,7 @@ $ docker-compose down
 Just add the `.ttl` and `.config` to `data/` and restart the containers.
 
 ### adapt config.ttl
-To overwrite [config-docker-compose.ttl](config-docker-compose.ttl) put also a `config.ttl` in `data/`.
+To overwrite [config-docker-compose.ttl](config-docker-compose.ttl) put also a `config.ttl` in `data/`. To add classifications put them in a `config-ext.ttl` in `data/`.
 
 ## License
 [MIT License](LICENSE.md)

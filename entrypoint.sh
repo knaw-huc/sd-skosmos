@@ -9,6 +9,10 @@ else
     cp /var/www/html/config-docker-compose.ttl /tmp/config-docker-compose.ttl
 fi
 
+if [ -f ${DATA}/config-ext.ttl ];then
+    cat ${DATA}/config-ext.ttl >> /tmp/config-docker-compose.ttl
+fi
+
 LOADED=`ls ${DATA}/*.loaded | wc -l`
 if [ ${LOADED} -eq 0 ];then
     curl -u admin:${ADMIN_PASSWORD} -XPOST --data "dbName=skosmos&dbType=tdb" -G ${FUSEKI}/\$/datasets
