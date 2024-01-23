@@ -1,13 +1,11 @@
 :cities a skosmos:Vocabulary, void:Dataset ;
     dc:title "Cities"@en ;
-    dc:subject :cat_sshv ;
-    dc:subject :cat_all ;
-    dc:type mdrtype:THESAURUS ;
+     dc:type mdrtype:THESAURUS ;
     void:uriSpace "https://example.com/cities/";
     skosmos:showTopConcepts "true";
     skosmos:groupClass skos:Collection;
     skosmos:language "nl";
-    skosmos:shortName "cities";
+    skosmos:shortName "cities"; 
     skosmos:showChangeList "false" ;
     void:sparqlEndpoint <${SPARQL_ENDPOINT}> ;
     skosmos:sparqlGraph <https://example.com/cities>
