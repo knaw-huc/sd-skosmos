@@ -13,7 +13,7 @@ services:
     ports:
       - '3030:3030' #adapt as needed on portainer
   template-skosmos:
-    image: registry.diginfra.net/tsd/skosmos:v2.15-1.0-RC4
+    image: registry.diginfra.net/tsd/skosmos:v2.17-1.0-RC1
     environment:
       - ADMIN_PASSWORD=template #don't push to github only DI gitlab
       - FUSEKI=http://template-fuseki:3030
@@ -34,6 +34,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+#      no_cache: true # needs newer docker-compose.yml version
     volumes:
       - template-data:/data    
 volumes:
