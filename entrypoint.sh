@@ -35,7 +35,7 @@ for VOCAB in `ls *.ttl`; do
         fi
         # TODO: delete the del:* properties
         # TODO: clear the named graph in Fuseki
-        curl -X PUT -H Content-Type:text/turtle -T ${VOCAB}.ttl -G ${FUSEKI}/skosmos/data --data-urlencode graph=${GRAPH}
+        curl  -u admin:${ADMIN_PASSWORD} -X PUT -H Content-Type:text/turtle -T ${VOCAB}.ttl -G ${FUSEKI}/skosmos/data --data-urlencode graph=${GRAPH}
         touch ${DATA}/${VOCAB}.loaded
         echo "... DONE"
     fi
