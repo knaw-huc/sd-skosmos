@@ -2,7 +2,7 @@ FROM library/php:7.3-apache
 
 # set skosmos release version and download link
 ARG version=v2.17
-ARG SKOSMOS_TARGZ_RELEASE_URL=https://github.com/NatLibFi/Skosmos/archive/${version}.tar.gz
+ARG SKOSMOS_TARGZ_RELEASE_URL=https://github.com/knaw-huc/Skosmos/archive/refs/tags/${version}.tar.gz
 
 # general server setup and locale
 RUN apt-get update && \
@@ -38,6 +38,7 @@ COPY requirements.txt /var/www/
 RUN /usr/bin/env pip install -r /var/www/requirements.txt
 
 # Configure Skosmos
+COPY skosmos-repository.ttl /var/www/
 COPY entrypoint.sh /var/www/
 COPY entrypoint.py /var/www/
 COPY config-docker-compose.ttl /var/www/html/

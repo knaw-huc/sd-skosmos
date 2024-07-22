@@ -35,7 +35,7 @@ def append_file(source, dest):
 
 
 if __name__ == "__main__":
-    time.sleep(30)
+    time.sleep(10)
 
     data = os.environ["DATA"]
 
@@ -48,30 +48,45 @@ if __name__ == "__main__":
         append_file(f'{data}/config-ext.ttl', '/tmp/config-docker-compose.ttl')
 
     admin_password = os.environ.get("ADMIN_PASSWORD", '')
-    fuseki_base_url = os.environ["FUSEKI"]
 
-    loaded = glob.glob(f'{data}/*.loaded')
+    endpoint = os.environ.get("SPARQL_ENDPOINT", '')
 
-    if len(loaded) == 0:
-        # Create Fuseki
-        requests.post(
-            f"{fuseki_base_url}/$/datasets",
+    # Check if db exists
+    resp = requests.get(f"{endpoint}/size")
+    if resp.status_code != 200:
+        # GraphDB repository not created yet -- create it
+        headers = {
+            'Content-Type': 'text/turtle',
+        }
+        response = requests.put(
+            f"{endpoint}",
+            headers=headers,
+            data=open(f"/var/www/skosmos-repository.ttl", "rb"),
             auth=('admin', admin_password),
-            params={'dbName': 'skosmos', 'dbType': 'tdb'},
         )
-        print(f"CREATED FUSEKI[{fuseki_base_url}] DB[skosmos.tdb]")
-        pass
+        print(f"CREATED GRAPHDB[{endpoint}] DB[skosmos.tdb]")
     else:
-        print(f"EXISTS FUSEKI [{fuseki_base_url}]]")
+        print(f"EXISTS GRAPHDB [{endpoint}]]")
 
     vocabs = glob.glob(f'{data}/*.ttl')
+
+    graphs_response = requests.get(f"{endpoint}/rdf-graphs",
+                                   headers={"Accept": "application/json"})
+    loaded_vocabs = []
+    if graphs_response.status_code == 200:
+        body = graphs_response.json()
+        loaded_vocabs = []
+        for binding in body["results"]["bindings"]:
+            loaded_vocabs.append(binding["contextID"]["value"])
+        print("Loaded vocabs:")
+        print(loaded_vocabs)
 
     for vocab in vocabs:
         path = Path(vocab)
         basename = path.stem
-        if not os.path.isfile(f'{data}/{basename}.loaded'):
+        graph = get_graph(data, basename)
+        if graph not in loaded_vocabs:
             print(f"LOAD VOCAB[{basename}] ...")
-            graph = get_graph(data, basename)
             print(f"... in GRAPH[{graph}] ...")
             if not os.path.isfile(f'{data}/{basename}.ttl'):
                 print(f"!ERROR {data}/{basename}.ttl doesn't exist!")
@@ -80,17 +95,15 @@ if __name__ == "__main__":
             headers = {
                 'Content-Type': 'text/turtle',
             }
-            requests.put(
-                f"{fuseki_base_url}/skosmos/data",
+            response = requests.put(
+                f"{endpoint}/statements",
                 data=open(f'{data}/{basename}.ttl'),
                 headers=headers,
                 auth=('admin', admin_password),
-                params={'graph': graph},
+                params={'context': f"<{graph}>"},
             )
-            open(f'{data}/{basename}.loaded', 'a').close()
             print("... DONE")
 
     configs = glob.glob(f'{data}/*.config')
     for config in configs:
         append_file(config, "/tmp/config-docker-compose.ttl")
-
