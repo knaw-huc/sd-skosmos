@@ -97,7 +97,7 @@ if __name__ == "__main__":
             }
             response = requests.put(
                 f"{endpoint}/statements",
-                data=open(f'{data}/{basename}.ttl'),
+                data=open(f'{data}/{basename}.ttl', "rb"),
                 headers=headers,
                 auth=('admin', admin_password),
                 params={'context': f"<{graph}>"},
