@@ -2,3 +2,6 @@
 **/.DS_Store
 **/*.loaded
 .idea
+
+data/countries.ttl
+data/countries.config
