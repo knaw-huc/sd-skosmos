@@ -1,23 +1,32 @@
 version: '3.5'
 
 services:
-  fuseki:
-    image: stain/jena-fuseki:latest
+  graphdb:
+    hostname: graphdb
+    image: ontotext/graphdb:10.6.4
     environment:
-      - 'ADMIN_PASSWORD=admin'
-      - 'JVM_ARGS=-Xmx2g'
-    networks:
-      - skosmos
+      GDB_JAVA_OPTS: >-
+        -Xmx2g 
+        -Xms1g
+        -Dgraphdb.home=/opt/graphdb/home
+        -Dgraphdb.workbench.cors.enable=true
+        -Dgraphdb.append.request.id.headers=true
+        -Denable-context-index=true
+        -Dentity-pool-implementation=transactional
+        -Dhealth.max.query.time.seconds=500
+        -Dreuse.vars.in.subselects=true
     ports:
-      - '3030:3030'
+      - ${GRAPHDB_PORT:-7200}:7200
+      # volumes:
+      # - /where-to-store-data:/opt/graphdb/home
+      # - /where-to-store-data-for-import:/root/graphdb-import
   skosmos:
     container_name: 'skosmos-web'
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - FUSEKI=${FUSEKI:-http://fuseki:3030}
-      - SPARQL_ENDPOINT=${SPARQL_ENDPOINT:-http://fuseki:3030/skosmos/sparql}
+      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
       - DATA=${DATA:-/data}
     networks:
       - skosmos
@@ -26,7 +35,7 @@ services:
     volumes:
       - ./data:/data
     depends_on:
-      - fuseki
+      - graphdb
 networks:
   skosmos:
     external: false
