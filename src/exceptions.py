@@ -4,7 +4,12 @@ This file contains all exceptions raised by the application.
 
 
 class InvalidConfigurationException(Exception):
-    pass
+    """
+    Exception raised when there is a misconfiguration.
+    """
 
-class UnknownAuthenticationTypeException(Exception):
-    pass
+
+class UnknownAuthenticationTypeException(InvalidConfigurationException):
+    """
+    Exception raised when the authentication type specified is not known.
+    """
