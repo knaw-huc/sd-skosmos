@@ -10,6 +10,7 @@ import shutil
 import time
 from pathlib import Path
 
+from src.exceptions import InvalidConfigurationException
 from src.graphdb import get_loaded_vocabs, setup_graphdb
 from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, load_vocabulary
 
@@ -55,16 +56,21 @@ if __name__ == "__main__":
 
         vocab_config = load_vocab_yaml(path)
 
-        with get_file_from_config(vocab_config['config'], data) as config:
-            graph = get_graph(config)
-            print(f"Graph: {graph}")
-        with get_file_from_config(vocab_config['config'], data) as config:
-            # Reset file pointer
-            append_file(config, "/tmp/config-docker-compose.ttl")
+        try:
+            with get_file_from_config(vocab_config['config'], data) as config:
+                graph = get_graph(config)
+                print(f"Graph: {graph}")
+            with get_file_from_config(vocab_config['config'], data) as config:
+                # Reset file pointer
+                append_file(config, "/tmp/config-docker-compose.ttl")
 
-        always_load = vocab_config['config'].get('alwaysRefresh', False)
+            always_load = vocab_config['config'].get('alwaysRefresh', False)
 
-        if always_load or graph not in loaded_vocabs:
-            print(f"Loading vocabulary {vocab}")
-            load_vocabulary(vocab_config['source'], data, graph)
-            print("... DONE")
+            if always_load or graph not in loaded_vocabs:
+                print(f"Loading vocabulary {vocab}")
+                load_vocabulary(vocab_config['source'], data, graph)
+                print("... DONE")
+        except InvalidConfigurationException as e:
+            print(f"Invalid configuration: {e}")
+            print(f"Skipping vocab '{vocab}'")
+            continue

@@ -4,6 +4,7 @@ This file contains functions for dealing with vocabularies and their configurati
 
 import re
 import urllib.request
+import urllib.parse
 import yaml
 
 from src.exceptions import InvalidConfigurationException, UnknownAuthenticationTypeException
@@ -29,6 +30,21 @@ def get_file_from_config(config_data, data_dir):
             auth_data = config_data['auth']
             if auth_data['type'] == 'github':
                 req.add_header('Authorization', f'token {auth_data["token"]}')
+            elif auth_data['type'] == 'gitlab':
+                try:
+                    raw_url = config_data['location']
+                    url = urllib.parse.urlparse(raw_url)
+                    [repo, full_path] = map(
+                        lambda x: urllib.parse.quote_plus(x.strip('/')),
+                        url.path.split('/-/blob/')
+                    )
+                    [branch, path] = full_path.split('%2F', 1)
+                    api_url = (f"https://{url.netloc}/api/v4/projects/{repo}"
+                               + f"/repository/files/{path}/raw?ref={branch}")
+                    req = urllib.request.Request(api_url)
+                    req.add_header('PRIVATE-TOKEN', auth_data["token"])
+                except ValueError as e:
+                    raise InvalidConfigurationException("GitLab URI format invalid") from e
             else:
                 raise UnknownAuthenticationTypeException()
 
@@ -45,9 +61,6 @@ def load_vocabulary(source_data, data_dir, graph_name):
     :return:
     """
     with get_file_from_config(source_data, data_dir) as vocab_file:
-        # g = ConjunctiveGraph()
-        # g.parse(vocab_file, format=get_vocab_format(source_data))
-        # c = list(g.contexts())[0]
         add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data))
 
 
