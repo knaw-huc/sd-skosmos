@@ -40,6 +40,7 @@ RUN /usr/bin/env pip install -r /var/www/requirements.txt
 # Configure Skosmos
 COPY skosmos-repository.ttl /var/www/
 COPY entrypoint.sh /var/www/
+COPY ./src /var/www/src
 COPY entrypoint.py /var/www/
 COPY config-docker-compose.ttl /var/www/html/
 ENTRYPOINT ["/var/www/entrypoint.sh"]

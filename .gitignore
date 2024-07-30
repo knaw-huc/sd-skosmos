@@ -3,5 +3,7 @@
 **/*.loaded
 .idea
 
-data/countries.ttl
-data/countries.config
+data/*.ttl
+data/*.trig
+data/*.config
+data/*.yaml

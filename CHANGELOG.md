@@ -7,12 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added support for YAML configurations.
+- Allow specifying external config/rdf files.
+- Added support for trig files.
+
 ## [v2.15-1.1.0]
 
 ### Changed
 
- - Rewrote `entrypoint.sh` as a Python script
- - Use GraphDB instead of Fuseki
+ - Rewrote `entrypoint.sh` as a Python script.
+ - Use GraphDB instead of Fuseki.
  - On start, check if vocabularies exist in GraphDB instead of keeping track of local .loaded files.
 
 ## [v2.15-1.0.0]

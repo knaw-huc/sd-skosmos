@@ -1,37 +1,34 @@
 #!/usr/bin/env python3
 
-import time
+"""
+The python entrypoint initializes the Skosmos dataset before starting the application.
+"""
+
+import glob
 import os
 import shutil
-import glob
-import re
-import requests
+import time
 from pathlib import Path
 
-
-def get_graph(data_dir, vocab_name):
-    """
-    Get the sparql graph from the given vocab
-    :param data_dir: The location of the 'data' directory
-    :param vocab_name:  The vocabulary, a config and ttl should be present
-    :return:
-    """
-    file = open(f"{data_dir}/{vocab_name}.config", 'r')
-    for line in file:
-        if re.search("sparqlGraph", line):
-            return line.strip().split(" ")[1].strip("<>")
+from src.exceptions import InvalidConfigurationException
+from src.graphdb import get_loaded_vocabs, setup_graphdb
+from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, load_vocabulary
 
 
 def append_file(source, dest):
     """
     Append source to dest file.
-    :param source:
-    :param dest:
+    :param source:  A file pointer to a source file.
+    :param dest:    The path of the destination file.
     :return:
     """
-    with open(source, "r") as sf:
-        with open(dest, "a+") as df:
-            df.write(sf.read())
+    with open(dest, "a+", encoding='utf-8') as df:
+        for line in source:
+            try:
+                line = line.decode()
+            except (UnicodeDecodeError, AttributeError):
+                pass
+            df.write(line)
 
 
 if __name__ == "__main__":
@@ -45,65 +42,35 @@ if __name__ == "__main__":
         shutil.copy('/var/www/html/config-docker-compose.ttl', '/tmp/config-docker-compose.ttl')
 
     if os.path.isfile(f'{data}/config-ext.ttl'):
-        append_file(f'{data}/config-ext.ttl', '/tmp/config-docker-compose.ttl')
+        with open(f'{data}/config-ext.ttl', 'r', encoding='utf-8') as f:
+            append_file(f, '/tmp/config-docker-compose.ttl')
 
-    admin_password = os.environ.get("ADMIN_PASSWORD", '')
+    setup_graphdb()
 
-    endpoint = os.environ.get("SPARQL_ENDPOINT", '')
+    loaded_vocabs = get_loaded_vocabs()
 
-    # Check if db exists
-    resp = requests.get(f"{endpoint}/size")
-    if resp.status_code != 200:
-        # GraphDB repository not created yet -- create it
-        headers = {
-            'Content-Type': 'text/turtle',
-        }
-        response = requests.put(
-            f"{endpoint}",
-            headers=headers,
-            data=open(f"/var/www/skosmos-repository.ttl", "rb"),
-            auth=('admin', admin_password),
-        )
-        print(f"CREATED GRAPHDB[{endpoint}] DB[skosmos.tdb]")
-    else:
-        print(f"EXISTS GRAPHDB [{endpoint}]]")
-
-    vocabs = glob.glob(f'{data}/*.ttl')
-
-    graphs_response = requests.get(f"{endpoint}/rdf-graphs",
-                                   headers={"Accept": "application/json"})
-    loaded_vocabs = []
-    if graphs_response.status_code == 200:
-        body = graphs_response.json()
-        loaded_vocabs = []
-        for binding in body["results"]["bindings"]:
-            loaded_vocabs.append(binding["contextID"]["value"])
-        print("Loaded vocabs:")
-        print(loaded_vocabs)
+    vocabs = glob.glob(f'{data}/*.yaml')
 
     for vocab in vocabs:
         path = Path(vocab)
-        basename = path.stem
-        graph = get_graph(data, basename)
-        if graph not in loaded_vocabs:
-            print(f"LOAD VOCAB[{basename}] ...")
-            print(f"... in GRAPH[{graph}] ...")
-            if not os.path.isfile(f'{data}/{basename}.ttl'):
-                print(f"!ERROR {data}/{basename}.ttl doesn't exist!")
-                exit(1)
 
-            headers = {
-                'Content-Type': 'text/turtle',
-            }
-            response = requests.put(
-                f"{endpoint}/statements",
-                data=open(f'{data}/{basename}.ttl', "rb"),
-                headers=headers,
-                auth=('admin', admin_password),
-                params={'context': f"<{graph}>"},
-            )
-            print("... DONE")
+        vocab_config = load_vocab_yaml(path)
 
-    configs = glob.glob(f'{data}/*.config')
-    for config in configs:
-        append_file(config, "/tmp/config-docker-compose.ttl")
+        try:
+            with get_file_from_config(vocab_config['config'], data) as config:
+                graph = get_graph(config)
+                print(f"Graph: {graph}")
+            with get_file_from_config(vocab_config['config'], data) as config:
+                # Reset file pointer
+                append_file(config, "/tmp/config-docker-compose.ttl")
+
+            always_load = vocab_config['config'].get('alwaysRefresh', False)
+
+            if always_load or graph not in loaded_vocabs:
+                print(f"Loading vocabulary {vocab}")
+                load_vocabulary(vocab_config['source'], data, graph)
+                print("... DONE")
+        except InvalidConfigurationException as e:
+            print(f"Invalid configuration: {e}")
+            print(f"Skipping vocab '{vocab}'")
+            continue
