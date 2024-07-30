@@ -37,13 +37,13 @@ if __name__ == "__main__":
     data = os.environ["DATA"]
 
     if os.path.isfile(f'{data}/config.ttl'):
-        shutil.copy(f'{data}/config.ttl', '/tmp/config-docker-compose.ttl')
+        shutil.copy(f'{data}/config.ttl', '/config/config-docker-compose.ttl')
     else:
-        shutil.copy('/var/www/html/config-docker-compose.ttl', '/tmp/config-docker-compose.ttl')
+        shutil.copy('/var/www/html/config-docker-compose.ttl', '/config/config-docker-compose.ttl')
 
     if os.path.isfile(f'{data}/config-ext.ttl'):
         with open(f'{data}/config-ext.ttl', 'r', encoding='utf-8') as f:
-            append_file(f, '/tmp/config-docker-compose.ttl')
+            append_file(f, '/config/config-docker-compose.ttl')
 
     setup_graphdb()
 
@@ -60,9 +60,6 @@ if __name__ == "__main__":
             with get_file_from_config(vocab_config['config'], data) as config:
                 graph = get_graph(config)
                 print(f"Graph: {graph}")
-            with get_file_from_config(vocab_config['config'], data) as config:
-                # Reset file pointer
-                append_file(config, "/tmp/config-docker-compose.ttl")
 
             always_load = vocab_config['config'].get('alwaysRefresh', False)
 
@@ -70,6 +67,10 @@ if __name__ == "__main__":
                 print(f"Loading vocabulary {vocab}")
                 load_vocabulary(vocab_config['source'], data, graph)
                 print("... DONE")
+
+            # Doing this last makes sure the vocab isn't added to the config when there's a problem
+            with get_file_from_config(vocab_config['config'], data) as config:
+                append_file(config, "/config/config-docker-compose.ttl")
         except InvalidConfigurationException as e:
             print(f"Invalid configuration: {e}")
             print(f"Skipping vocab '{vocab}'")

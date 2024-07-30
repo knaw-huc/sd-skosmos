@@ -34,8 +34,29 @@ services:
       - '8080:80'
     volumes:
       - ./data:/data
+      - skosmos-configuration:/config
     depends_on:
       - graphdb
+  skosmos-cron:
+    container_name: 'skosmos-cron'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+      - DATA=${DATA:-/data}
+    networks:
+      - skosmos
+    volumes:
+      - ./data:/data
+      - skosmos-configuration:/config
+    entrypoint:
+      - /var/www/entrypoint_cron.sh
+
 networks:
   skosmos:
+    external: false
+
+volumes:
+  skosmos-configuration:
     external: false
