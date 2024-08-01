@@ -32,9 +32,11 @@ def append_file(source: IO, dest: str):
             df.write(line)
 
 
-if __name__ == "__main__":
-    time.sleep(10)
-
+def main() -> None:
+    """
+    Main function.
+    :return:
+    """
     data = os.environ["DATA"]
 
     if os.path.isfile(f'{data}/config.ttl'):
@@ -62,15 +64,15 @@ if __name__ == "__main__":
                 graph = get_graph(config)
                 print(f"Graph: {graph}")
 
-            should_reload = False
+            reload = False
             if graph not in loaded_vocabs:
-                should_reload = True
+                reload = True
             elif vocab_config['config'].get('refresh', False):
                 interval = vocab_config['config'].get('refreshInterval', 0)
                 diff = (time.time() - loaded_vocabs[graph]) / 3600
-                should_reload = diff > interval
+                reload = diff > interval
 
-            if should_reload:
+            if reload:
                 print(f"Loading vocabulary {vocab}")
                 load_vocabulary(vocab_config['source'], data, graph)
                 if graph in loaded_vocabs:
@@ -86,3 +88,8 @@ if __name__ == "__main__":
             print(f"Invalid configuration: {e}")
             print(f"Skipping vocab '{vocab}'")
             continue
+
+
+if __name__ == "__main__":
+    time.sleep(10)
+    main()
