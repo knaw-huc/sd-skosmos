@@ -5,13 +5,16 @@ This file contains functions for dealing with vocabularies and their configurati
 import re
 import urllib.request
 import urllib.parse
+from pathlib import Path
+from typing import IO, TextIO
+
 import yaml
 
 from src.exceptions import InvalidConfigurationException, UnknownAuthenticationTypeException
 from src.graphdb import add_vocabulary
 
 
-def get_file_from_config(config_data, data_dir):
+def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
     """
     Get the config file from yaml data.
     :param config_data: The configuration, a dict with information about the file.
@@ -52,7 +55,7 @@ def get_file_from_config(config_data, data_dir):
     raise InvalidConfigurationException("Type must be file")
 
 
-def load_vocabulary(source_data, data_dir, graph_name):
+def load_vocabulary(source_data: dict, data_dir: str, graph_name: str) -> None:
     """
     Load a vocabulary using the source data from the yaml.
     :param source_data:
@@ -64,17 +67,16 @@ def load_vocabulary(source_data, data_dir, graph_name):
         add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data))
 
 
-def get_graph(fp):
+def get_graph(fp: IO) -> str:
     """
     Get the sparql graph from the given vocab
     :param fp:  The vocabulary config, a file pointer
     :return:
     """
     for line in fp:
-        # If line is a bytes-like object, we need to decode it
         try:
-            line = line.decode()
-        except (UnicodeDecodeError, AttributeError):
+            line = line.decode('utf-8')
+        except UnicodeDecodeError:
             # Already decoded
             pass
         if re.search("sparqlGraph", line):
@@ -82,7 +84,7 @@ def get_graph(fp):
     return ""
 
 
-def load_vocab_yaml(file_location):
+def load_vocab_yaml(file_location: Path) -> dict:
     """
     Open a yaml config file and return a dict with its contents
     :param file_location:
@@ -92,7 +94,7 @@ def load_vocab_yaml(file_location):
         return yaml.safe_load(fp)
 
 
-def get_vocab_format(source_data):
+def get_vocab_format(source_data: dict) -> str:
     """
     Return the vocab format of the given data source. It is either based on the file extension,
     or on an override in the yaml file.
@@ -101,4 +103,4 @@ def get_vocab_format(source_data):
     """
     if 'format' in source_data:
         return source_data['format']
-    return source_data['location'].split('.')[-1]
+    return source_data['location'].split('?')[0].split('.')[-1]

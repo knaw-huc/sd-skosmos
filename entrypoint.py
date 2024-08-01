@@ -9,13 +9,14 @@ import os
 import shutil
 import time
 from pathlib import Path
+from typing import IO
 
 from src.exceptions import InvalidConfigurationException
-from src.graphdb import get_loaded_vocabs, setup_graphdb
+from src.graphdb import get_loaded_vocabs, set_timestamp, setup_graphdb, update_timestamp
 from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, load_vocabulary
 
 
-def append_file(source, dest):
+def append_file(source: IO, dest: str):
     """
     Append source to dest file.
     :param source:  A file pointer to a source file.
@@ -61,11 +62,21 @@ if __name__ == "__main__":
                 graph = get_graph(config)
                 print(f"Graph: {graph}")
 
-            always_load = vocab_config['config'].get('alwaysRefresh', False)
+            should_reload = False
+            if graph not in loaded_vocabs:
+                should_reload = True
+            elif vocab_config['config'].get('refresh', False):
+                interval = vocab_config['config'].get('refreshInterval', 0)
+                diff = (time.time() - loaded_vocabs[graph]) / 3600
+                should_reload = diff > interval
 
-            if always_load or graph not in loaded_vocabs:
+            if should_reload:
                 print(f"Loading vocabulary {vocab}")
                 load_vocabulary(vocab_config['source'], data, graph)
+                if graph in loaded_vocabs:
+                    update_timestamp(graph, int(time.time()))
+                else:
+                    set_timestamp(graph, int(time.time()))
                 print("... DONE")
 
             # Doing this last makes sure the vocab isn't added to the config when there's a problem
