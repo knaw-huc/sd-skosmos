@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v2.15-1.2.0]
 
+### Added
 - Added support for YAML configurations.
 - Allow specifying external config/rdf files.
 - Added support for trig files.
+- Import vocabularies every hour using cron.
+- Added a configuration option for the refresh interval of vocabularies.
 
 ## [v2.15-1.1.0]
 
