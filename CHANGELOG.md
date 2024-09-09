@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.15-1.2.0]
+
 - Added support for YAML configurations.
 - Allow specifying external config/rdf files.
 - Added support for trig files.
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial version
 
-[Unreleased]: https://github.com/CLARIAH/skosmos
-[v2.15-1.0.0]: https://github.com/CLARIAH/skosmos/releases/tag/v2.15-1.0-RC4
-[v2.15-1.1.0]: https://github.com/CLARIAH/skosmos/releases/tag/v2.15-1.1.0
+[Unreleased]: https://github.com/knaw-huc/sd-skosmos
+[v2.15-1.0.0]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.0-RC4
+[v2.15-1.1.0]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.1.0
+[v2.15-1.2.0]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.2.0
