@@ -36,6 +36,7 @@ services:
       - $TRAEFIK_HOST
     volumes:
       - gl-skosmos:/data
+      - skosmos-configuration:/config
     depends_on:
       - graphdb
 
@@ -46,3 +47,5 @@ networks:
 volumes:
   gl-skosmos:
     external: true
+  skosmos-configuration:
+    external: false
