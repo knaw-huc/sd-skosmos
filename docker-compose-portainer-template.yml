@@ -17,6 +17,8 @@ services:
         -Dreuse.vars.in.subselects=true
     ports:
       - ${GRAPHDB_PORT:-7200}:7200
+    networks:
+      - traefik-public
   template-skosmos:
     image: registry.diginfra.net/tsd/skosmos:v2.17-1.0-RC1
     environment:
@@ -24,7 +26,7 @@ services:
       - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
       - DATA=${DATA:-/data}
     networks:
-      - template-skosmos
+      - traefik-public
     ports:
       - '8080:80' #adapt as needed on portainer
     labels:
@@ -43,12 +45,12 @@ services:
       dockerfile: Dockerfile
 #      no_cache: true # needs newer docker-compose.yml version
     volumes:
-      - template-data:/data    
+      - template-data:/data
+
+networks:
+  traefik-public:
+    external: true
+
 volumes:
   template-data:
     external: true
-networks:
-  template-skosmos:
-    #external: false
-    external:
-      name: nginxproxynetwork
