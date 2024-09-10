@@ -1,34 +1,41 @@
 version: '2'
 
 services:
-  template-fuseki:
-    image: stain/jena-fuseki:latest
+  graphdb:
+    hostname: graphdb
+    image: ontotext/graphdb:10.6.4
     environment:
-      - ADMIN_PASSWORD=template #don't push to github only DI gitlab
-      - JVM_ARGS=-Xmx2g
-      - VIRTUAL_HOST=template-skosmos-fuseki.sd.di.huc.knaw.nl
-      - VIRTUAL_PORT=2030 #adapt as needed on portainer
-    networks:
-      - template-skosmos
+      GDB_JAVA_OPTS: >-
+        -Xmx2g 
+        -Xms1g
+        -Dgraphdb.home=/opt/graphdb/home
+        -Dgraphdb.workbench.cors.enable=true
+        -Dgraphdb.append.request.id.headers=true
+        -Denable-context-index=true
+        -Dentity-pool-implementation=transactional
+        -Dhealth.max.query.time.seconds=500
+        -Dreuse.vars.in.subselects=true
     ports:
-      - '3030:3030' #adapt as needed on portainer
+      - ${GRAPHDB_PORT:-7200}:7200
   template-skosmos:
     image: registry.diginfra.net/tsd/skosmos:v2.17-1.0-RC1
     environment:
-      - ADMIN_PASSWORD=template #don't push to github only DI gitlab
-      - FUSEKI=http://template-fuseki:3030
-      - SPARQL_ENDPOINT=http://template-fuseki:3030/skosmos/sparql
-      - DATA=/data/template
-      - VIRTUAL_HOST=template-skosmos.sd.di.huc.knaw.nl
-      - VIRTUAL_PORT=8080 #adapt as needed on portainer
+      - ADMIN_PASSWORD=$ADMIN_PASSWORD
+      - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
+      - DATA=${DATA:-/data}
     networks:
       - template-skosmos
     ports:
       - '8080:80' #adapt as needed on portainer
+    labels:
+      - "traefik.enable=true"
+      - $TRAEFIK_PORT
+      - $TRAEFIK_ENTRYPOINTS
+      - $TRAEFIK_HOST
     volumes:
       - template-data:/data
     depends_on:
-      - template-fuseki
+      - graphdb
       - template-data
   template-data:
     build:
@@ -39,7 +46,7 @@ services:
       - template-data:/data    
 volumes:
   template-data:
-    external: false
+    external: true
 networks:
   template-skosmos:
     #external: false
