@@ -20,7 +20,7 @@ services:
     networks:
       - traefik-public
   template-skosmos:
-    image: registry.diginfra.net/tsd/skosmos:v2.17-1.0-RC1
+    image: ghcr.io/knaw-huc/sd-skosmos:v2.15-1.2.0
     environment:
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
       - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
