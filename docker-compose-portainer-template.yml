@@ -35,7 +35,7 @@ services:
       - $TRAEFIK_ENTRYPOINTS
       - $TRAEFIK_HOST
     volumes:
-      - template-data:/data
+      - gl-skosmos:/data
     depends_on:
       - graphdb
       - template-data
@@ -52,5 +52,5 @@ networks:
     external: true
 
 volumes:
-  template-data:
+  gl-skosmos:
     external: true
