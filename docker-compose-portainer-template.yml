@@ -38,13 +38,6 @@ services:
       - gl-skosmos:/data
     depends_on:
       - graphdb
-  template-data:
-    build:
-      context: .
-      dockerfile: Dockerfile
-#      no_cache: true # needs newer docker-compose.yml version
-    volumes:
-      - template-data:/data
 
 networks:
   traefik-public:
