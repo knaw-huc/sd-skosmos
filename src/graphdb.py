@@ -2,7 +2,6 @@
 This file contains functions for interacting with GraphDB
 """
 import os
-import sys
 from typing import TextIO
 
 import requests
@@ -12,40 +11,6 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, DIGEST
 admin_password = os.environ.get("ADMIN_PASSWORD", '')
 admin_username = os.environ.get("ADMIN_USERNAME", 'admin')
 endpoint = os.environ.get("SPARQL_ENDPOINT", '')
-
-
-import logging
-import contextlib
-from http.client import HTTPConnection
-
-def debug_requests_on():
-    '''Switches on logging of the requests module.'''
-    HTTPConnection.debuglevel = 1
-
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    requests_log = logging.getLogger("requests.packages.urllib3")
-    requests_log.setLevel(logging.DEBUG)
-    requests_log.propagate = True
-
-def debug_requests_off():
-    '''Switches off logging of the requests module, might be some side-effects'''
-    HTTPConnection.debuglevel = 0
-
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.WARNING)
-    root_logger.handlers = []
-    requests_log = logging.getLogger("requests.packages.urllib3")
-    requests_log.setLevel(logging.WARNING)
-    requests_log.propagate = False
-
-@contextlib.contextmanager
-def debug_requests():
-    '''Use with 'with'!'''
-    debug_requests_on()
-    yield
-    debug_requests_off()
-
 
 
 def setup_graphdb() -> None:
@@ -173,15 +138,14 @@ def add_vocabulary(graph: TextIO, graph_name: str, extension: str) -> None:
     headers = {
         'Content-Type': get_type(extension),
     }
-    with debug_requests():
-        response = requests.put(
-            f"{endpoint}/statements",
-            data=content.encode('utf-8'),
-            headers=headers,
-            auth=(admin_username, admin_password),
-            params={'context': f"<{graph_name}>"},
-            timeout=60,
-        )
+    response = requests.put(
+        f"{endpoint}/statements",
+        data=content.encode('utf-8'),
+        headers=headers,
+        auth=(admin_username, admin_password),
+        params={'context': f"<{graph_name}>"},
+        timeout=60,
+    )
     print(f"RESPONSE: {response.status_code}")
     if response.status_code != 200:
         print(response.content)
