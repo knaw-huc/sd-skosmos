@@ -6,7 +6,7 @@ from typing import TextIO
 
 import requests
 
-from SPARQLWrapper import SPARQLWrapper, JSON, POST, DIGEST
+from SPARQLWrapper import SPARQLWrapper, JSON, POST, BASIC
 
 admin_password = os.environ.get("ADMIN_PASSWORD", '')
 admin_username = os.environ.get("ADMIN_USERNAME", 'admin')
@@ -72,7 +72,7 @@ def set_timestamp(graph_name: str, timestamp: int) -> None:
     :return:
     """
     sparql = SPARQLWrapper(f"{endpoint}/statements")
-    sparql.setHTTPAuth(DIGEST)
+    sparql.setHTTPAuth(BASIC)
     sparql.setCredentials(admin_username, admin_password)
     sparql.setMethod(POST)
     q = """INSERT DATA {{
@@ -92,7 +92,7 @@ def update_timestamp(graph_name: str, timestamp: int) -> None:
     :return:
     """
     sparql = SPARQLWrapper(f"{endpoint}/statements")
-    sparql.setHTTPAuth(DIGEST)
+    sparql.setHTTPAuth(BASIC)
     sparql.setCredentials(admin_username, admin_password)
     sparql.setMethod(POST)
     q = """
