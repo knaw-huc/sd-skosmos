@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v2.15-1.2.1]
+
+### Added
+- Environment vars for sparql endpoint and db admin username.
+
+### Fixed
+- String decode error for 'file' type vocabularies.
+
 ## [v2.15-1.2.0]
 
 ### Added
@@ -32,3 +40,4 @@ Initial version
 [v2.15-1.0.0]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.0-RC4
 [v2.15-1.1.0]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.1.0
 [v2.15-1.2.0]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.2.0
+[v2.15-1.2.1]: https://github.com/knaw-huc/sd-skosmos/releases/tag/v2.15-1.2.1

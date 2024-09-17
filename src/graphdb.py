@@ -9,6 +9,7 @@ import requests
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, DIGEST
 
 admin_password = os.environ.get("ADMIN_PASSWORD", '')
+admin_username = os.environ.get("ADMIN_USERNAME", 'admin')
 endpoint = os.environ.get("SPARQL_ENDPOINT", '')
 
 
@@ -29,7 +30,7 @@ def setup_graphdb() -> None:
                 f"{endpoint}",
                 headers=headers,
                 data=fp,
-                auth=('admin', admin_password),
+                auth=(admin_username, admin_password),
                 timeout=60
             )
         print(f"CREATED GRAPHDB[{endpoint}] DB[skosmos.tdb]")
@@ -72,7 +73,7 @@ def set_timestamp(graph_name: str, timestamp: int) -> None:
     """
     sparql = SPARQLWrapper(f"{endpoint}/statements")
     sparql.setHTTPAuth(DIGEST)
-    sparql.setCredentials("admin", admin_password)
+    sparql.setCredentials(admin_username, admin_password)
     sparql.setMethod(POST)
     q = """INSERT DATA {{
         <{graph}> <http://purl.org/dc/terms/modified> {timestamp} .
@@ -92,7 +93,7 @@ def update_timestamp(graph_name: str, timestamp: int) -> None:
     """
     sparql = SPARQLWrapper(f"{endpoint}/statements")
     sparql.setHTTPAuth(DIGEST)
-    sparql.setCredentials("admin", admin_password)
+    sparql.setCredentials(admin_username, admin_password)
     sparql.setMethod(POST)
     q = """
     DELETE {{
@@ -139,7 +140,7 @@ def add_vocabulary(graph: TextIO, graph_name: str, extension: str) -> None:
         f"{endpoint}/statements",
         data=graph.read(),
         headers=headers,
-        auth=('admin', admin_password),
+        auth=(admin_username, admin_password),
         params={'context': f"<{graph_name}>"},
         timeout=60,
     )

@@ -76,7 +76,7 @@ def get_graph(fp: IO) -> str:
     for line in fp:
         try:
             line = line.decode('utf-8')
-        except UnicodeDecodeError:
+        except (UnicodeDecodeError, AttributeError):
             # Already decoded
             pass
         if re.search("sparqlGraph", line):
