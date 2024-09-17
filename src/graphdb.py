@@ -134,13 +134,17 @@ def add_vocabulary(graph: TextIO, graph_name: str, extension: str) -> None:
     """
     print(f"Adding vocabulary {graph_name}")
     content = graph.read()
+    try:
+        content = content.encode('utf-8')
+    except (UnicodeDecodeError, AttributeError):
+        pass
 
     headers = {
         'Content-Type': get_type(extension),
     }
     response = requests.put(
         f"{endpoint}/statements",
-        data=content.encode('utf-8'),
+        data=content,
         headers=headers,
         auth=(admin_username, admin_password),
         params={'context': f"<{graph_name}>"},
