@@ -42,7 +42,7 @@ def main() -> None:
     if os.path.isfile(f'{data}/config.ttl'):
         shutil.copy(f'{data}/config.ttl', '/config/config-docker-compose.ttl')
     else:
-        shutil.copy('/var/www/html/config-docker-compose.ttl', '/config/config-docker-compose.ttl')
+        shutil.copy('/app/config-docker-compose.ttl', '/config/config-docker-compose.ttl')
 
     if os.path.isfile(f'{data}/config-ext.ttl'):
         with open(f'{data}/config-ext.ttl', 'r', encoding='utf-8') as f:

@@ -7,3 +7,4 @@ data/*.ttl
 data/*.trig
 data/*.config
 data/*.yaml
+data/*.yaml.bak

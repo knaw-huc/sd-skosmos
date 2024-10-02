@@ -1,4 +1,4 @@
 SPARQL_ENDPOINT=$SPARQL_ENDPOINT
 DATA=$DATA
 
-0 * * * * /var/www/crontask.sh >> /var/log/cron.log 2>&1
+0 * * * * /app/crontask.sh >> /var/log/cron.log 2>&1

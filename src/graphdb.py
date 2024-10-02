@@ -25,7 +25,7 @@ def setup_graphdb() -> None:
         headers = {
             'Content-Type': 'text/turtle',
         }
-        with open("/var/www/skosmos-repository.ttl", "rb") as fp:
+        with open("/app/skosmos-repository.ttl", "rb") as fp:
             requests.put(
                 f"{endpoint}",
                 headers=headers,

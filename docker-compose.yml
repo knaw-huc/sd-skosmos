@@ -37,11 +37,12 @@ services:
       - skosmos-configuration:/config
     depends_on:
       - graphdb
-  skosmos-cron:
-    container_name: 'skosmos-cron'
+      - vocab-loader
+  vocab-loader:
+    container_name: 'vocab-loader'
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: loader.Dockerfile
     environment:
       - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
       - DATA=${DATA:-/data}
@@ -50,8 +51,8 @@ services:
     volumes:
       - ./data:/data
       - skosmos-configuration:/config
-    entrypoint:
-      - /var/www/entrypoint_cron.sh
+    depends_on:
+      - graphdb
 
 networks:
   skosmos:
