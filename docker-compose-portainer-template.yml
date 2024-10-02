@@ -39,8 +39,9 @@ services:
       - skosmos-configuration:/config
     depends_on:
       - graphdb
-  template-skosmos-cron:
-    image: ghcr.io/knaw-huc/sd-skosmos:v2.15-1.2.0
+      - template-skosmos-loader
+  template-skosmos-loader:
+    image: ghcr.io/knaw-huc/sd-skosmos-loader:v2.15-1.2.0
     environment:
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
       - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
@@ -52,8 +53,6 @@ services:
       - skosmos-configuration:/config
     depends_on:
       - graphdb
-    entrypoint:
-      - /var/www/entrypoint_cron.sh
 
 networks:
   traefik-public:
