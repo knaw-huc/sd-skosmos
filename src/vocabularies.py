@@ -82,7 +82,11 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
             sparql_query = file.read()
         endpoint = config_data['location']
         data_dict = {'query': sparql_query}
-        req = urllib.request.Request(endpoint, method='POST', data=urllib.parse.urlencode(data_dict).encode())
+        req = urllib.request.Request(
+            endpoint,
+            method='POST',
+            data=urllib.parse.urlencode(data_dict).encode()
+        )
         req.add_header('Accept', 'text/turtle')
         if 'headers' in config_data:
             for header, val in config_data['headers'].items():
