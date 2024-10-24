@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   graphdb:
     hostname: graphdb
@@ -17,9 +15,6 @@ services:
         -Dreuse.vars.in.subselects=true
     ports:
       - ${GRAPHDB_PORT:-7200}:7200
-      # volumes:
-      # - /where-to-store-data:/opt/graphdb/home
-      # - /where-to-store-data-for-import:/root/graphdb-import
   skosmos:
     container_name: 'skosmos-web'
     build:

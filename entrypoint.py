@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python3
 
 """
 The python entrypoint initializes the Skosmos dataset before starting the application.
