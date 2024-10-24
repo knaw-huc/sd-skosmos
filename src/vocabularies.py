@@ -94,7 +94,7 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
 
         return urllib.request.urlopen(req)
 
-    raise InvalidConfigurationException("Type must be file")
+    raise InvalidConfigurationException("Unknown type")
 
 
 def load_vocabulary(source_data: dict, data_dir: str, graph_name: str) -> None:
