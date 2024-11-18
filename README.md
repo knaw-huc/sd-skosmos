@@ -17,11 +17,87 @@ $ docker-compose up -d
 ```bash
 $ docker-compose down
 ```
-### Add new vocabularies
-Just add the `.ttl` and `.config` to `data/` and restart the containers.
 
 ### adapt config.ttl
-To overwrite [config-docker-compose.ttl](config-docker-compose.ttl) put also a `config.ttl` in `data/`. To add classifications put them in a `config-ext.ttl` in `data/`.
+To overwrite [config-docker-compose.ttl](config-docker-compose.ttl) put a `config.ttl` in `data/`. To add classifications put them in a `config-ext.ttl` in `data/`.
+
+## Add new vocabularies
+In order to add a vocabulary you will need three files. The first one is `{vocabulary-name}.yaml` which needs to be
+put in the `data/` directory. The `{vocabulary-name}.config` and `{vocabulary-name}.ttl` files can 
+
+### Configuring the vocabulary with `{vocabulary}.yaml`
+The yaml file is used for configuring how to load the vocabulary, and whether it needs to be refreshed
+at a certain interval. Refreshing is mainly useful when the vocabulary is loaded from an external source.
+
+#### Local Files Example
+```yaml
+config:
+  type: file
+  location: my-vocabulary.config
+
+source:
+  type: file
+  location: my-vocabulary.ttl
+```
+
+#### Get Request Example
+```yaml
+config:
+  refresh: Yes
+  refreshInterval: 1 # Hours
+  type: fetch
+  location: https://example.com/path/to/vocabulary.config
+
+source:
+  type: fetch
+  location: https://example.com/path/to/vocabulary.ttl
+  headers:
+    X-Custom-Header: Set header values here
+```
+
+Note that both config and source support the same configuration options, except `refresh` and `refreshInterval` can only
+be set for config (it will affect the entire vocabulary).
+
+#### SPARQL Endpoint Example
+You can also load vocabularies from a sparql endpoint. For this, you will need an additional file containing
+the sparql query itself, which needs to be in the `data/` directory. For the example, assume we have the query
+saved in `data/vocabulary.sparql`.
+
+```yaml
+config:
+  refresh: Yes
+  refreshInterval: 1 # Hours
+  type: file
+  location: vocabulary.config
+
+source:
+  type: sparql
+  location: https://example.com/sparql-endpoint
+  query_location: vocabulary.sparql
+  format: ttl # Used to specify the file extension when it's not clear from the URL what will be returned
+```
+
+#### POST request example
+You can also retrieve the vocabulary by posting to an endpoint, using a json body.
+
+```yaml
+config:
+  refresh: Yes
+  refreshInterval: 1 # Hours
+  type: file
+  location: vocabulary.config
+
+source:
+  type: post
+  location: https://example.com/some-export-endpoint
+  format: trig # Used to specify the file extension when it's not clear from the URL what will be returned
+  body: {
+    "config-a": "some value",
+    "config-b": "some other value"
+  }
+  headers:
+    Authorization: Bearer your-token-here
+```
 
 ## License
 [MIT License](LICENSE.md)
