@@ -23,7 +23,8 @@ To overwrite [config-docker-compose.ttl](config-docker-compose.ttl) put a `confi
 
 ## Add new vocabularies
 In order to add a vocabulary you will need three files. The first one is `{vocabulary-name}.yaml` which needs to be
-put in the `data/` directory. The `{vocabulary-name}.config` and `{vocabulary-name}.ttl` files can 
+put in the `data/` directory. The `{vocabulary-name}.config` and `{vocabulary-name}.ttl` files can be in there as well,
+but they can also be loaded from an external source. See the example yaml files below to see how to configure them.
 
 ### Configuring the vocabulary with `{vocabulary}.yaml`
 The yaml file is used for configuring how to load the vocabulary, and whether it needs to be refreshed
