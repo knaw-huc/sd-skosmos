@@ -59,6 +59,31 @@ source:
 Note that both config and source support the same configuration options, except `refresh` and `refreshInterval` can only
 be set for config (it will affect the entire vocabulary).
 
+#### Get Request Example (private GitHub/GitLab repository)
+For these get requests, there are two special cases where additional authentication settings can be used. These are
+GitHub and GitLab, when you need to access a file in a private repository.
+
+```yaml
+# Auth Settings Example
+config:
+  type: fetch
+  location: https://your-gitlab-domain.com/organisation/repository/-/blob/main/vocabulary.config
+  auth:
+    type: gitlab
+    token: your-access-token
+
+source:
+  type: fetch
+  location: https://raw.githubusercontent.com/organisation/repository/main/vocabulary.trig
+  auth:
+    type: github
+    token: your-access-token
+```
+
+The GitLab example will use the file location in the repository to fabricate a call to the GitLab API instead, as
+that is the only way to access private repositories. For GitHub, it's just a shortcut for setting the correct headers (make sure
+to use the path to the 'raw' file in this case).
+
 #### SPARQL Endpoint Example
 You can also load vocabularies from a sparql endpoint. For this, you will need an additional file containing
 the sparql query itself, which needs to be in the `data/` directory. For the example, assume we have the query
