@@ -2,7 +2,6 @@
 This file contains functions for interacting with GraphDB
 """
 import os
-import urllib
 from typing import TextIO
 
 import requests
