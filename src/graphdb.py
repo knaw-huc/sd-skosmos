@@ -124,12 +124,13 @@ def get_type(extension: str) -> str:
     return "application/x-turtle"
 
 
-def add_vocabulary(graph: TextIO, graph_name: str, extension: str) -> None:
+def add_vocabulary(graph: TextIO, graph_name: str, extension: str, append: bool = False) -> None:
     """
     Add a vocabulary to GraphDB
     :param graph:       File
     :param graph_name:  String representing the name of the graph
-    :param extension:    String representing the extension
+    :param extension:   String representing the extension
+    :param append:      Append data instead of replacing
     :return:
     """
     print(f"Adding vocabulary {graph_name}")
@@ -142,7 +143,9 @@ def add_vocabulary(graph: TextIO, graph_name: str, extension: str) -> None:
     headers = {
         'Content-Type': get_type(extension),
     }
-    response = requests.put(
+    method = requests.post if append else requests.put
+
+    response = method(
         f"{endpoint}/statements",
         data=content,
         headers=headers,
