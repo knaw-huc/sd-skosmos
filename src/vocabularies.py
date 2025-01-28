@@ -97,7 +97,7 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
     raise InvalidConfigurationException("Unknown type")
 
 
-def load_vocabulary(source_data: dict, data_dir: str, graph_name: str) -> None:
+def load_vocabulary(source_data: dict, data_dir: str, graph_name: str, append: bool = False) -> None:
     """
     Load a vocabulary using the source data from the yaml.
     :param source_data:
@@ -106,7 +106,7 @@ def load_vocabulary(source_data: dict, data_dir: str, graph_name: str) -> None:
     :return:
     """
     with get_file_from_config(source_data, data_dir) as vocab_file:
-        add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data))
+        add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data), append)
 
 
 def get_graph(fp: IO) -> str:

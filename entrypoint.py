@@ -75,6 +75,9 @@ def main() -> None:
             if reload:
                 print(f"Loading vocabulary {vocab}")
                 load_vocabulary(vocab_config['source'], data, graph)
+                if "tweaks" in vocab_config:
+                    print(f"Tweaks found for {vocab}. Loading")
+                    load_vocabulary(vocab_config['tweaks'], data, graph, True)
                 if graph in loaded_vocabs:
                     update_timestamp(graph, int(time.time()))
                 else:
