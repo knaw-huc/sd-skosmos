@@ -6,7 +6,6 @@ from typing import TextIO
 import requests
 
 from src.database import DatabaseConnector
-from src.vocabularies import get_type
 
 
 class Fuseki(DatabaseConnector):
