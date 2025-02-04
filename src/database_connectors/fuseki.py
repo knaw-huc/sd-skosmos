@@ -49,17 +49,14 @@ class Fuseki(DatabaseConnector):
         :return:
         """
         print(f"[Fuseki] Adding vocabulary {graph_name}")
-        content = graph.read()
         try:
-            content = content.encode('utf-8')
+            content = graph.read().encode('utf-8')
         except (UnicodeDecodeError, AttributeError):
-            pass
+            content = graph.read()
 
-        params = {'graph': f"{graph_name}"},
-
-        response = self.sparql_http_update(content, extension, params, append)
+        response = self.sparql_http_update(content, extension,{'graph': f"{graph_name}"},
+                                           append)
 
         print(f"RESPONSE: {response.status_code}")
         if response.status_code != 200:
             print(response.content)
-            print(f"used format: {get_type(extension)}, extension {extension}")
