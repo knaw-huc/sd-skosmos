@@ -55,19 +55,10 @@ class Fuseki(DatabaseConnector):
         except (UnicodeDecodeError, AttributeError):
             pass
 
-        headers = {
-            'Content-Type': get_type(extension),
-        }
-        method = requests.post if append else requests.put
+        params = {'graph': f"{graph_name}"},
 
-        response = method(
-            f"{self.endpoint}/statements",
-            data=content,
-            headers=headers,
-            auth=(self.admin_username, self.admin_password),
-            params={'graph': f"{graph_name}"},
-            timeout=60,
-        )
+        response = self.sparql_http_update(content, extension, params, append)
+
         print(f"RESPONSE: {response.status_code}")
         if response.status_code != 200:
             print(response.content)

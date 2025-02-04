@@ -4,7 +4,10 @@ Database connector for interacting with triple stores.
 from abc import abstractmethod, ABC
 from typing import TextIO
 
+import requests
 from SPARQLWrapper import SPARQLWrapper, JSON, POST, BASIC
+
+from src.vocabularies import get_type
 
 
 class DatabaseConnector(ABC):
@@ -121,3 +124,28 @@ class DatabaseConnector(ABC):
         """
         sparql.setQuery(q.format(graph=graph_name, timestamp=timestamp))
         sparql.query()
+
+
+    def sparql_http_update(self, content, extension, params, append: bool = False):
+        """
+        Perform an update to the SPARQL-HTTP endpoint for adding a vocabulary
+        :param append:
+        :param extension:
+        :param content:
+        :param params:
+        :return:
+        """
+        headers = {
+            'Content-Type': get_type(extension)
+        }
+
+        method = requests.post if append else requests.put
+
+        return method(
+            f"{self.endpoint}/statements",
+            data=content,
+            headers=headers,
+            auth=(self.admin_username, self.admin_password),
+            params=params,
+            timeout=60,
+        )
