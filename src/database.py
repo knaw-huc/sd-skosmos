@@ -1,3 +1,6 @@
+"""
+Database connector for interacting with triple stores.
+"""
 from abc import abstractmethod, ABC
 from typing import TextIO
 
@@ -15,6 +18,13 @@ class DatabaseConnector(ABC):
 
 
     def __init__(self, endpoint, username, password):
+        """
+        Create a new DatabaseConnector. These three arguments are the same for all triple stores,
+        as they are needed for interacting with SPARQL. Specific implementations can add more.
+        :param endpoint:
+        :param username:
+        :param password:
+        """
         self.admin_password = password
         self.admin_username = username
         self.endpoint = endpoint
@@ -22,11 +32,15 @@ class DatabaseConnector(ABC):
 
     @abstractmethod
     def setup(self) -> None:
-        pass
+        """
+        Initialize the database.
+        :return:
+        """
 
 
     @abstractmethod
-    def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str, append: bool = False) -> None:
+    def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str,
+                       append: bool = False) -> None:
         """
         Add a vocabulary to the database
         :param graph:       File
@@ -35,12 +49,11 @@ class DatabaseConnector(ABC):
         :param append:      Append data instead of replacing
         :return:
         """
-        pass
 
 
     def get_loaded_vocabs(self) -> dict[str, int]:
         """
-        Get all loaded vocabularies from GraphDB
+        Get all loaded vocabularies from the triple store
         :return:
         """
         sparql = SPARQLWrapper(self.endpoint)

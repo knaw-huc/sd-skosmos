@@ -39,7 +39,8 @@ class GraphDB(DatabaseConnector):
             print(f"EXISTS GRAPHDB [{self.endpoint}]]")
 
 
-    def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str, append: bool = False) -> None:
+    def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str,
+                       append: bool = False) -> None:
         """
         Add a vocabulary to GraphDB
         :param graph:       File
@@ -48,7 +49,7 @@ class GraphDB(DatabaseConnector):
         :param append:      Append data instead of replacing
         :return:
         """
-        print(f"Adding vocabulary {graph_name}")
+        print(f"[GraphDB] Adding vocabulary {graph_name}")
         content = graph.read()
         try:
             content = content.encode('utf-8')

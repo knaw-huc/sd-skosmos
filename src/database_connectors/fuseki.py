@@ -16,7 +16,7 @@ class Fuseki(DatabaseConnector):
 
     def setup(self) -> None:
         """
-        Setup graphdb, if it isn't set up yet.
+        Setup fuseki, if it isn't set up yet.
         :return:
         """
         # Check if db exists
@@ -26,31 +26,29 @@ class Fuseki(DatabaseConnector):
             headers = {
                 'Content-Type': 'text/turtle',
             }
-            with open("/app/skosmos-repository.ttl", "rb") as fp:
-                requests.put(
-                    f"{self.endpoint}",
-                    headers=headers,
-                    data=fp,
-                    auth=(self.admin_username, self.admin_password),
-                    timeout=60
-                )
-            print(f"CREATED GRAPHDB[{self.endpoint}] DB[skosmos.tdb]")
+            requests.post(
+                f"{self.endpoint}/$/datasets",
+                headers=headers,
+                auth=(self.admin_username, self.admin_password),
+                params={'dbName': 'skosmos', 'dbType': 'tdb'},
+                timeout=60
+            )
+            print(f"CREATED FUSEKI[{self.endpoint}] DB[skosmos.tdb]")
         else:
-            print(f"EXISTS GRAPHDB [{self.endpoint}]]")
+            print(f"EXISTS FUSEKI [{self.endpoint}]]")
 
 
-
-
-    def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str, append: bool = False) -> None:
+    def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str,
+                       append: bool = False) -> None:
         """
-        Add a vocabulary to GraphDB
+        Add a vocabulary to Fuseki
         :param graph:       File
         :param graph_name:  String representing the name of the graph
         :param extension:   String representing the extension
         :param append:      Append data instead of replacing
         :return:
         """
-        print(f"Adding vocabulary {graph_name}")
+        print(f"[Fuseki] Adding vocabulary {graph_name}")
         content = graph.read()
         try:
             content = content.encode('utf-8')
@@ -67,7 +65,7 @@ class Fuseki(DatabaseConnector):
             data=content,
             headers=headers,
             auth=(self.admin_username, self.admin_password),
-            params={'context': f"<{graph_name}>"},
+            params={'graph': f"{graph_name}"},
             timeout=60,
         )
         print(f"RESPONSE: {response.status_code}")
