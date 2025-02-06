@@ -7,6 +7,32 @@ Create a new repo with a `docker-compose.yml` based on [docker-compose-portainer
 
 Put your vocabularies as `*.ttl` in the `data/` directory accompanied by a `*.config` file. See [countries.ttl.example](./data/countries.ttl.example) and [countries.config.example](./data/countries.config.example) for an example. To try out the example: remove the `.example` suffix.
 
+### Containers
+This Skosmos setup requires two containers to run (plus additionally a triple store, if that is not hosted externally).
+
+#### sd-skosmos
+This is the container responsible for serving the actual Skosmos application. In order for GraphDB support to work this
+is based on [our fork of Skosmos](https://github.com/knaw-huc/Skosmos) instead of the plain version. Other than GraphDB
+support, this doesn't change anything.
+
+| Env var           | Description                                                                                              |
+|-------------------|----------------------------------------------------------------------------------------------------------|
+| `SPARQL_ENDPOINT` | The SPARQL endpoint which Skosmos needs to use to connect to the triple store. Only requires read-access |
+| `DATA`            | The location of the 'data' folder containing the vocabulary configuration files                          |
+
+#### sd-skosmos-loader
+This container is responsible for configuring and importing the used vocabularies based on the configuration files in the `data` directory.
+It runs side by side with the Skosmos container and uses cron to run the import script for updating vocabularies from an external source.
+
+| Env var           | Description                                                                                                                                                                                         |
+|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `SPARQL_ENDPOINT` | The SPARQL endpoint which Skosmos needs to use to connect. Should be the same as for the `sd-skosmos` container.                                                                                    |
+| `DATABASE_TYPE`   | `graphdb` or `fuseki`                                                                                                                                                                               |
+| `STORE_BASE`      | The base endpoint of the triple store. Depends on the type, for GraphDB this is the same as the SPARQL endpoint. For fuseki, include the repository name (e.g. `http://fuseki-domain:3030/skosmos`) |
+| `ADMIN_USERNAME`  | The admin username for the triple store (we need write access).                                                                                                                                     |
+| `ADMIN_PASSWORD`  | The admin password for the triple store.                                                                                                                                                            |
+| `DATA`            | The location of the 'data' folder containing the vocabulary configuration files                                                                                                                     |
+
 ### To start
 ```bash
 $ docker-compose build

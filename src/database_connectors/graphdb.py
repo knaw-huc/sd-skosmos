@@ -31,9 +31,7 @@ class GraphDB(DatabaseConnector):
         Setup graphdb, if it isn't set up yet.
         :return:
         """
-        # Check if db exists
-        resp = requests.get(f"{self.sparql_http_endpoint}/size", timeout=60)
-        if resp.status_code != 200:
+        if not self.check_repository_exists():
             # GraphDB repository not created yet -- create it
             headers = {
                 'Content-Type': 'text/turtle',

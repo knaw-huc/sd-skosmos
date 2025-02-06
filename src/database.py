@@ -63,6 +63,17 @@ class DatabaseConnector(ABC):
         """
 
 
+    def check_repository_exists(self) -> bool:
+        """
+        Check if the used repository exists.
+        :return:
+        """
+        resp = requests.get(f"{self.sparql_http_endpoint}/size", timeout=60)
+        if resp.status_code != 200:
+            return False
+        return True
+
+
     def get_loaded_vocabs(self) -> dict[str, int]:
         """
         Get all loaded vocabularies from the triple store

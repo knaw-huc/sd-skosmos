@@ -36,16 +36,11 @@ class Fuseki(DatabaseConnector):
         :return:
         """
         # Check if db exists
-        resp = requests.get(f"{self.sparql_http_endpoint}/size", timeout=60)
-        if resp.status_code != 200:
+        if not self.check_repository_exists():
             # Fuseki repository not created yet -- create it
-            headers = {
-                'Content-Type': 'text/turtle',
-            }
             base_endpoint = '/'.join(self.fuseki_base.split('/')[:-1])
             requests.post(
                 f"{base_endpoint}/$/datasets",
-                headers=headers,
                 auth=(self.admin_username, self.admin_password),
                 params={'dbName': 'skosmos', 'dbType': 'tdb'},
                 timeout=60
