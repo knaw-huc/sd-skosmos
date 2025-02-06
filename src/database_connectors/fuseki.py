@@ -5,7 +5,7 @@ from typing import TextIO
 
 import requests
 
-from src.database import DatabaseConnector
+from src.database import DatabaseConnector, SparqlEndpoints, Credentials
 
 
 class Fuseki(DatabaseConnector):
@@ -23,11 +23,16 @@ class Fuseki(DatabaseConnector):
         :param password:
         """
         self.fuseki_base = fuseki_base
-        super().__init__(f"{fuseki_base}/sparql",
-                         f"{fuseki_base}/update",
-                         f"{fuseki_base}/data",
-                         username,
-                         password)
+        sparql_endpoints = SparqlEndpoints(
+            read=f"{fuseki_base}/sparql",
+            write=f"{fuseki_base}/update",
+            http=f"{fuseki_base}/data",
+        )
+        credentials = Credentials(
+            username=username,
+            password=password
+        )
+        super().__init__(sparql_endpoints, credentials)
 
 
     def setup(self) -> None:
@@ -41,7 +46,7 @@ class Fuseki(DatabaseConnector):
             base_endpoint = '/'.join(self.fuseki_base.split('/')[:-1])
             requests.post(
                 f"{base_endpoint}/$/datasets",
-                auth=(self.admin_username, self.admin_password),
+                auth=(self.credentials.username, self.credentials.password),
                 params={'dbName': 'skosmos', 'dbType': 'tdb'},
                 timeout=60
             )

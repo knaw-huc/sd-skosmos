@@ -2,6 +2,7 @@
 Database connector for interacting with triple stores.
 """
 from abc import abstractmethod, ABC
+from dataclasses import dataclass
 from typing import TextIO
 
 import requests
@@ -10,36 +11,44 @@ from SPARQLWrapper import SPARQLWrapper, JSON, POST, BASIC
 from src.vocabularies import get_type
 
 
+@dataclass
+class Credentials:
+    """
+    Database credentials data object.
+    """
+    username: str
+    password: str
+
+
+@dataclass
+class SparqlEndpoints:
+    """
+    The different SPARQL endpoints.
+    """
+    read: str
+    write: str
+    http: str
+
+
 class DatabaseConnector(ABC):
     """
     Abstract Base Class for handling database connections
     """
 
-    admin_password: str
-    admin_username: str
-    sparql_endpoint_read: str
-    sparql_endpoint_write: str
-    sparql_http_endpoint: str
+    sparql_endpoints: SparqlEndpoints
+    credentials: Credentials
 
 
     def __init__(self,
-                 sparql_read_endpoint: str,
-                 sparql_write_endpoint: str,
-                 sparql_http_endpoint: str,
-                 username: str,
-                 password: str):
+                 sparql_endpoints: SparqlEndpoints,
+                 credentials: Credentials):
         """
-        Create a new DatabaseConnector. These three arguments are the same for all triple stores,
-        as they are needed for interacting with SPARQL. Specific implementations can add more.
-        :param sparql_http_endpoint: The SPARQL HTTP-api endpoint for this database
-        :param username:
-        :param password:
+        Create a new DatabaseConnector.
+        :param sparql_endpoints: The endpoints required for interacting with SPARQL
+        :param credentials: Credentials for write access on the SPARQL endpoints.
         """
-        self.admin_password = password
-        self.admin_username = username
-        self.sparql_endpoint_read = sparql_read_endpoint
-        self.sparql_endpoint_write = sparql_write_endpoint
-        self.sparql_http_endpoint = sparql_http_endpoint
+        self.sparql_endpoints = sparql_endpoints
+        self.credentials = credentials
 
 
     @abstractmethod
@@ -68,7 +77,7 @@ class DatabaseConnector(ABC):
         Check if the used repository exists.
         :return:
         """
-        resp = requests.get(f"{self.sparql_http_endpoint}/size", timeout=60)
+        resp = requests.get(f"{self.sparql_endpoints.http}/size", timeout=60)
         if resp.status_code != 200:
             return False
         return True
@@ -79,9 +88,9 @@ class DatabaseConnector(ABC):
         Get all loaded vocabularies from the triple store
         :return:
         """
-        sparql = SPARQLWrapper(self.sparql_endpoint_read)
+        sparql = SPARQLWrapper(self.sparql_endpoints.read)
         sparql.setHTTPAuth(BASIC)
-        sparql.setCredentials(self.admin_username, self.admin_password)
+        sparql.setCredentials(self.credentials.username, self.credentials.password)
         sparql.setReturnFormat(JSON)
         q = """
             SELECT ?graph ?timestamp
@@ -109,9 +118,9 @@ class DatabaseConnector(ABC):
         :param timestamp:
         :return:
         """
-        sparql = SPARQLWrapper(f"{self.sparql_endpoint_write}")
+        sparql = SPARQLWrapper(f"{self.sparql_endpoints.write}")
         sparql.setHTTPAuth(BASIC)
-        sparql.setCredentials(self.admin_username, self.admin_password)
+        sparql.setCredentials(self.credentials.username, self.credentials.password)
         sparql.setMethod(POST)
         q = """INSERT DATA {{
             <{graph}> <http://purl.org/dc/terms/modified> {timestamp} .
@@ -129,9 +138,9 @@ class DatabaseConnector(ABC):
         :param timestamp:
         :return:
         """
-        sparql = SPARQLWrapper(f"{self.sparql_endpoint_write}")
+        sparql = SPARQLWrapper(f"{self.sparql_endpoints.write}")
         sparql.setHTTPAuth(BASIC)
-        sparql.setCredentials(self.admin_username, self.admin_password)
+        sparql.setCredentials(self.credentials.username, self.credentials.password)
         sparql.setMethod(POST)
         q = """
         DELETE {{
@@ -164,10 +173,10 @@ class DatabaseConnector(ABC):
         method = requests.post if append else requests.put
 
         return method(
-            f"{self.sparql_http_endpoint}",
+            f"{self.sparql_endpoints.http}",
             data=content,
             headers=headers,
-            auth=(self.admin_username, self.admin_password),
+            auth=(self.credentials.username, self.credentials.password),
             params=params,
             timeout=60,
         )

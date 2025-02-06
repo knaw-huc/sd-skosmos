@@ -18,26 +18,26 @@ from src.database_connectors.graphdb import GraphDB
 from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, get_vocab_format
 
 
-def construct_database(type: str = "graphdb") -> DatabaseConnector:
+def construct_database(db_type: str = "graphdb") -> DatabaseConnector:
     """
     Create an instance of a DatabaseConnector
     :return: 
     """
     sparql_endpoint = os.environ.get("SPARQL_ENDPOINT", "")
     store_base = os.environ.get("STORE_BASE", sparql_endpoint)
-    if type == "graphdb":
+    if db_type == "graphdb":
         return GraphDB(
             sparql_endpoint,
             os.environ.get("ADMIN_USERNAME", ""), # GraphDB has no default username/password
             os.environ.get("ADMIN_PASSWORD", "")
         )
-    elif type == "fuseki":
+    if db_type == "fuseki":
         return Fuseki(
             store_base,
             os.environ.get("ADMIN_USERNAME", "admin"), # Fuseki default username
             os.environ.get("ADMIN_PASSWORD", "")
         )
-    raise InvalidConfigurationException(f"Database type '{type}' not known/supported")
+    raise InvalidConfigurationException(f"Database type '{db_type}' not known/supported")
 
 
 def append_file(source: IO, dest: str):

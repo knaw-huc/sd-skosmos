@@ -5,7 +5,7 @@ from typing import TextIO
 
 import requests
 
-from src.database import DatabaseConnector
+from src.database import DatabaseConnector, SparqlEndpoints, Credentials
 
 
 class GraphDB(DatabaseConnector):
@@ -19,11 +19,13 @@ class GraphDB(DatabaseConnector):
         :param username:
         :param password:
         """
-        super().__init__(endpoint,
-                         f"{endpoint}/statements",
-                         f"{endpoint}/statements",
-                         username,
-                         password)
+        sparql_endpoints = SparqlEndpoints(
+            read=endpoint,
+            write=f"{endpoint}/statements",
+            http=f"{endpoint}/statements"
+        )
+        super().__init__(sparql_endpoints,
+                         Credentials(username=username, password=password))
 
 
     def setup(self) -> None:
@@ -38,15 +40,15 @@ class GraphDB(DatabaseConnector):
             }
             with open("/app/skosmos-repository.ttl", "rb") as fp:
                 requests.put(
-                    f"{self.sparql_endpoint_read}",
+                    f"{self.sparql_endpoints.read}",
                     headers=headers,
                     data=fp,
-                    auth=(self.admin_username, self.admin_password),
+                    auth=(self.credentials.username, self.credentials.password),
                     timeout=60
                 )
-            print(f"CREATED GRAPHDB[{self.sparql_http_endpoint}] DB[skosmos.tdb]")
+            print(f"CREATED GRAPHDB[{self.sparql_endpoints.http}] DB[skosmos.tdb]")
         else:
-            print(f"EXISTS GRAPHDB [{self.sparql_http_endpoint}]]")
+            print(f"EXISTS GRAPHDB [{self.sparql_endpoints.http}]]")
 
 
     def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str,
