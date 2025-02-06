@@ -17,20 +17,29 @@ class DatabaseConnector(ABC):
 
     admin_password: str
     admin_username: str
-    endpoint: str
+    sparql_endpoint_read: str
+    sparql_endpoint_write: str
+    sparql_http_endpoint: str
 
 
-    def __init__(self, endpoint, username, password):
+    def __init__(self,
+                 sparql_read_endpoint: str,
+                 sparql_write_endpoint: str,
+                 sparql_http_endpoint: str,
+                 username: str,
+                 password: str):
         """
         Create a new DatabaseConnector. These three arguments are the same for all triple stores,
         as they are needed for interacting with SPARQL. Specific implementations can add more.
-        :param endpoint:
+        :param sparql_http_endpoint: The SPARQL HTTP-api endpoint for this database
         :param username:
         :param password:
         """
         self.admin_password = password
         self.admin_username = username
-        self.endpoint = endpoint
+        self.sparql_endpoint_read = sparql_read_endpoint
+        self.sparql_endpoint_write = sparql_write_endpoint
+        self.sparql_http_endpoint = sparql_http_endpoint
 
 
     @abstractmethod
@@ -59,7 +68,9 @@ class DatabaseConnector(ABC):
         Get all loaded vocabularies from the triple store
         :return:
         """
-        sparql = SPARQLWrapper(self.endpoint)
+        sparql = SPARQLWrapper(self.sparql_endpoint_read)
+        sparql.setHTTPAuth(BASIC)
+        sparql.setCredentials(self.admin_username, self.admin_password)
         sparql.setReturnFormat(JSON)
         q = """
             SELECT ?graph ?timestamp
@@ -87,7 +98,7 @@ class DatabaseConnector(ABC):
         :param timestamp:
         :return:
         """
-        sparql = SPARQLWrapper(f"{self.endpoint}/statements")
+        sparql = SPARQLWrapper(f"{self.sparql_endpoint_write}")
         sparql.setHTTPAuth(BASIC)
         sparql.setCredentials(self.admin_username, self.admin_password)
         sparql.setMethod(POST)
@@ -107,7 +118,7 @@ class DatabaseConnector(ABC):
         :param timestamp:
         :return:
         """
-        sparql = SPARQLWrapper(f"{self.endpoint}/statements")
+        sparql = SPARQLWrapper(f"{self.sparql_endpoint_write}")
         sparql.setHTTPAuth(BASIC)
         sparql.setCredentials(self.admin_username, self.admin_password)
         sparql.setMethod(POST)
@@ -142,7 +153,7 @@ class DatabaseConnector(ABC):
         method = requests.post if append else requests.put
 
         return method(
-            f"{self.endpoint}/statements",
+            f"{self.sparql_http_endpoint}",
             data=content,
             headers=headers,
             auth=(self.admin_username, self.admin_password),

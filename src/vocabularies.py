@@ -20,11 +20,11 @@ def get_type(extension: str) -> str:
     :return:
     """
     if extension in ["ttl", "turtle"]:
-        return "application/x-turtle"
+        return "text/turtle"
     if extension in ["trig"]:
-        return "application/x-trig"
+        return "application/trig"
     # Default
-    return "application/x-turtle"
+    return "text/turtle"
 
 
 def set_auth_data(

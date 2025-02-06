@@ -12,21 +12,32 @@ from pathlib import Path
 from typing import IO
 
 from src.database import DatabaseConnector
+from src.database_connectors.fuseki import Fuseki
 from src.exceptions import InvalidConfigurationException
 from src.database_connectors.graphdb import GraphDB
 from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, get_vocab_format
 
 
-def construct_database() -> DatabaseConnector:
+def construct_database(type: str = "graphdb") -> DatabaseConnector:
     """
     Create an instance of a DatabaseConnector
     :return: 
     """
-    return GraphDB(
-        os.environ.get("SPARQL_ENDPOINT", ""),
-        os.environ.get("ADMIN_USERNAME", ""),
-        os.environ.get("ADMIN_PASSWORD", "")
-    )
+    sparql_endpoint = os.environ.get("SPARQL_ENDPOINT", "")
+    store_base = os.environ.get("STORE_BASE", sparql_endpoint)
+    if type == "graphdb":
+        return GraphDB(
+            sparql_endpoint,
+            os.environ.get("ADMIN_USERNAME", ""), # GraphDB has no default username/password
+            os.environ.get("ADMIN_PASSWORD", "")
+        )
+    elif type == "fuseki":
+        return Fuseki(
+            store_base,
+            os.environ.get("ADMIN_USERNAME", "admin"), # Fuseki default username
+            os.environ.get("ADMIN_PASSWORD", "")
+        )
+    raise InvalidConfigurationException(f"Database type '{type}' not known/supported")
 
 
 def append_file(source: IO, dest: str):
@@ -66,6 +77,7 @@ def main() -> None:
     :return:
     """
     data = os.environ["DATA"]
+    database_type = os.environ.get("DATABASE_TYPE", "graphdb")
 
     if os.path.isfile(f'{data}/config.ttl'):
         shutil.copy(f'{data}/config.ttl', '/config/config-docker-compose.ttl')
@@ -76,7 +88,7 @@ def main() -> None:
         with open(f'{data}/config-ext.ttl', 'r', encoding='utf-8') as f:
             append_file(f, '/config/config-docker-compose.ttl')
 
-    database = construct_database()
+    database = construct_database(database_type)
 
     database.setup()
 

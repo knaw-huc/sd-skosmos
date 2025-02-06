@@ -10,8 +10,25 @@ from src.database import DatabaseConnector
 
 class Fuseki(DatabaseConnector):
     """
-    GraphDB database connector
+    Fuseki database connector
     """
+
+    fuseki_base: str
+
+    def __init__(self, fuseki_base, username, password):
+        """
+        Create a new Fuseki DatabaseConnector
+        :param fuseki_base:
+        :param username:
+        :param password:
+        """
+        self.fuseki_base = fuseki_base
+        super().__init__(f"{fuseki_base}/sparql",
+                         f"{fuseki_base}/update",
+                         f"{fuseki_base}/data",
+                         username,
+                         password)
+
 
     def setup(self) -> None:
         """
@@ -19,22 +36,23 @@ class Fuseki(DatabaseConnector):
         :return:
         """
         # Check if db exists
-        resp = requests.get(f"{self.endpoint}/size", timeout=60)
+        resp = requests.get(f"{self.sparql_http_endpoint}/size", timeout=60)
         if resp.status_code != 200:
-            # GraphDB repository not created yet -- create it
+            # Fuseki repository not created yet -- create it
             headers = {
                 'Content-Type': 'text/turtle',
             }
+            base_endpoint = '/'.join(self.fuseki_base.split('/')[:-1])
             requests.post(
-                f"{self.endpoint}/$/datasets",
+                f"{base_endpoint}/$/datasets",
                 headers=headers,
                 auth=(self.admin_username, self.admin_password),
                 params={'dbName': 'skosmos', 'dbType': 'tdb'},
                 timeout=60
             )
-            print(f"CREATED FUSEKI[{self.endpoint}] DB[skosmos.tdb]")
+            print(f"CREATED FUSEKI[{self.fuseki_base}] DB[skosmos.tdb]")
         else:
-            print(f"EXISTS FUSEKI [{self.endpoint}]]")
+            print(f"EXISTS FUSEKI [{self.fuseki_base}]]")
 
 
     def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str,
@@ -57,5 +75,6 @@ class Fuseki(DatabaseConnector):
                                            append)
 
         print(f"RESPONSE: {response.status_code}")
-        if response.status_code != 200:
+        if response.status_code >= 400:
+            print()
             print(response.content)

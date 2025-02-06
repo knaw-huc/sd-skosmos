@@ -12,6 +12,19 @@ class GraphDB(DatabaseConnector):
     """
     GraphDB database connector
     """
+    def __init__(self, endpoint, username, password):
+        """
+        Construct GraphDB DatabaseConnector
+        :param endpoint:
+        :param username:
+        :param password:
+        """
+        super().__init__(endpoint,
+                         f"{endpoint}/statements",
+                         f"{endpoint}/statements",
+                         username,
+                         password)
+
 
     def setup(self) -> None:
         """
@@ -19,7 +32,7 @@ class GraphDB(DatabaseConnector):
         :return:
         """
         # Check if db exists
-        resp = requests.get(f"{self.endpoint}/size", timeout=60)
+        resp = requests.get(f"{self.sparql_http_endpoint}/size", timeout=60)
         if resp.status_code != 200:
             # GraphDB repository not created yet -- create it
             headers = {
@@ -27,15 +40,15 @@ class GraphDB(DatabaseConnector):
             }
             with open("/app/skosmos-repository.ttl", "rb") as fp:
                 requests.put(
-                    f"{self.endpoint}",
+                    f"{self.sparql_endpoint_read}",
                     headers=headers,
                     data=fp,
                     auth=(self.admin_username, self.admin_password),
                     timeout=60
                 )
-            print(f"CREATED GRAPHDB[{self.endpoint}] DB[skosmos.tdb]")
+            print(f"CREATED GRAPHDB[{self.sparql_http_endpoint}] DB[skosmos.tdb]")
         else:
-            print(f"EXISTS GRAPHDB [{self.endpoint}]]")
+            print(f"EXISTS GRAPHDB [{self.sparql_http_endpoint}]]")
 
 
     def add_vocabulary(self, graph: TextIO, graph_name: str, extension: str,

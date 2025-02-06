@@ -1,4 +1,6 @@
 SPARQL_ENDPOINT=$SPARQL_ENDPOINT
+STORE_BASE=${STORE_BASE:-$SPARQL_ENDPOINT}
 DATA=$DATA
+DATABASE_TYPE=${DATABASE_TYPE:-graphdb}
 
 0 * * * * /app/crontask.sh >> /var/log/cron.log 2>&1
