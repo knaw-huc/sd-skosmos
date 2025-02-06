@@ -126,7 +126,7 @@ source:
   type: sparql
   location: https://example.com/sparql-endpoint
   query_location: vocabulary.sparql
-  format: ttl # Used to specify the file extension when it's not clear from the URL what will be returned
+  format: ttl # Used to specify the file extension when it's not clear from the URL
 ```
 
 #### POST request example
@@ -142,7 +142,7 @@ config:
 source:
   type: post
   location: https://example.com/some-export-endpoint
-  format: trig # Used to specify the file extension when it's not clear from the URL what will be returned
+  format: trig # Used to specify the file extension when it's not clear from the URL
   body: {
     "config-a": "some value",
     "config-b": "some other value"
