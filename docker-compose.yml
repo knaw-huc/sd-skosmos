@@ -1,4 +1,13 @@
 services:
+  fuseki:
+    image: stain/jena-fuseki:latest
+    environment:
+      - 'ADMIN_PASSWORD=admin'
+      - 'JVM_ARGS=-Xmx2g'
+    networks:
+      - skosmos
+    ports:
+      - '3030:3030'
   graphdb:
     hostname: graphdb
     image: ontotext/graphdb:10.7.4
@@ -21,7 +30,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+#      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
       - DATA=${DATA:-/data}
     networks:
       - skosmos
@@ -32,6 +42,7 @@ services:
       - skosmos-configuration:/config
     depends_on:
       - graphdb
+      - fuseki
       - vocab-loader
   vocab-loader:
     container_name: 'vocab-loader'
@@ -39,8 +50,12 @@ services:
       context: .
       dockerfile: loader.Dockerfile
     environment:
-      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+#      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+      - STORE_BASE=http://host.docker.internal:3030/skosmos
+      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
+      - ADMIN_PASSWORD=admin
       - DATA=${DATA:-/data}
+      - DATABASE_TYPE=fuseki
     networks:
       - skosmos
     volumes:
@@ -48,6 +63,7 @@ services:
       - skosmos-configuration:/config
     depends_on:
       - graphdb
+      - fuseki
 
 networks:
   skosmos:

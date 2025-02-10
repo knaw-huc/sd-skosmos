@@ -5,15 +5,34 @@ The python entrypoint initializes the Skosmos dataset before starting the applic
 """
 
 import glob
+import importlib
 import os
 import shutil
 import time
 from pathlib import Path
 from typing import IO
 
+from src.database import DatabaseConnector
 from src.exceptions import InvalidConfigurationException
-from src.graphdb import get_loaded_vocabs, set_timestamp, setup_graphdb, update_timestamp
-from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, load_vocabulary
+from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, get_vocab_format
+
+
+def construct_database(db_type: str = "graphdb") -> DatabaseConnector:
+    """
+    Create an instance of a DatabaseConnector
+    :return: 
+    """
+    module_name = f"src.database_connectors.{db_type}"
+    try:
+        module = importlib.import_module(module_name)
+    except ModuleNotFoundError as e:
+        raise InvalidConfigurationException(f"Database type '{db_type}' not known/supported") from e
+    if not hasattr(module, "create_connector"):
+        raise InvalidConfigurationException(f"'{db_type}' misses 'create_connector' function")
+    connector =  module.create_connector()
+    if not isinstance(connector, DatabaseConnector):
+        raise InvalidConfigurationException(f"'{db_type}' doesn't extend DatabaseConnector")
+    return connector
 
 
 def append_file(source: IO, dest: str):
@@ -32,12 +51,28 @@ def append_file(source: IO, dest: str):
             df.write(line)
 
 
+def load_vocabulary(database: DatabaseConnector, source_data: dict, data_dir: str,
+                    graph_name: str, append: bool = False) -> None:
+    """
+    Load a vocabulary using the source data from the yaml.
+    :param database: The database connector for connecting to the vocabulary storage.
+    :param source_data: Dict containing the information where to find the vocab.
+    :param data_dir: Dir containing local files.
+    :param graph_name: The name of the graph to put the vocabulary into.
+    :param append: Boolean, when true this doesn't overwrite the graph but appends.
+    :return:
+    """
+    with get_file_from_config(source_data, data_dir) as vocab_file:
+        database.add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data), append)
+
+
 def main() -> None:
     """
     Main function.
     :return:
     """
     data = os.environ["DATA"]
+    database_type = os.environ.get("DATABASE_TYPE", "graphdb")
 
     if os.path.isfile(f'{data}/config.ttl'):
         shutil.copy(f'{data}/config.ttl', '/config/config-docker-compose.ttl')
@@ -48,9 +83,11 @@ def main() -> None:
         with open(f'{data}/config-ext.ttl', 'r', encoding='utf-8') as f:
             append_file(f, '/config/config-docker-compose.ttl')
 
-    setup_graphdb()
+    database = construct_database(database_type)
 
-    loaded_vocabs = get_loaded_vocabs()
+    database.setup()
+
+    loaded_vocabs = database.get_loaded_vocabs()
 
     vocabs = glob.glob(f'{data}/*.yaml')
 
@@ -74,14 +111,14 @@ def main() -> None:
 
             if reload:
                 print(f"Loading vocabulary {vocab}")
-                load_vocabulary(vocab_config['source'], data, graph)
+                load_vocabulary(database, vocab_config['source'], data, graph)
                 if "tweaks" in vocab_config:
                     print(f"Tweaks found for {vocab}. Loading")
-                    load_vocabulary(vocab_config['tweaks'], data, graph, True)
+                    load_vocabulary(database, vocab_config['tweaks'], data, graph, True)
                 if graph in loaded_vocabs:
-                    update_timestamp(graph, int(time.time()))
+                    database.update_timestamp(graph, int(time.time()))
                 else:
-                    set_timestamp(graph, int(time.time()))
+                    database.set_timestamp(graph, int(time.time()))
                 print("... DONE")
 
             # Doing this last makes sure the vocab isn't added to the config when there's a problem

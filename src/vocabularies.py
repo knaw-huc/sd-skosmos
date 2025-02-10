@@ -11,7 +11,20 @@ from typing import IO, TextIO
 import yaml
 
 from src.exceptions import InvalidConfigurationException, UnknownAuthenticationTypeException
-from src.graphdb import add_vocabulary
+
+
+def get_type(extension: str) -> str:
+    """
+    Get the http mimetype based on the extension of a file.
+    :param extension:
+    :return:
+    """
+    if extension in ["ttl", "turtle"]:
+        return "text/turtle"
+    if extension in ["trig"]:
+        return "application/trig"
+    # Default
+    return "text/turtle"
 
 
 def set_auth_data(
@@ -95,20 +108,6 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
         return urllib.request.urlopen(req)
 
     raise InvalidConfigurationException("Unknown type")
-
-
-def load_vocabulary(source_data: dict, data_dir: str,
-                    graph_name: str, append: bool = False) -> None:
-    """
-    Load a vocabulary using the source data from the yaml.
-    :param source_data: Dict containing the information where to find the vocab.
-    :param data_dir: Dir containing local files.
-    :param graph_name: The name of the graph to put the vocabulary into.
-    :param append: Boolean, when true this doesn't overwrite the graph but appends.
-    :return:
-    """
-    with get_file_from_config(source_data, data_dir) as vocab_file:
-        add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data), append)
 
 
 def get_graph(fp: IO) -> str:

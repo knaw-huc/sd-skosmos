@@ -4,6 +4,7 @@
 .idea
 
 data/*.ttl
+data/*.sparql
 data/*.trig
 data/*.config
 data/*.yaml
