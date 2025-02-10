@@ -5,6 +5,7 @@ The python entrypoint initializes the Skosmos dataset before starting the applic
 """
 
 import glob
+import importlib
 import os
 import shutil
 import time
@@ -12,9 +13,7 @@ from pathlib import Path
 from typing import IO
 
 from src.database import DatabaseConnector
-from src.database_connectors.fuseki import Fuseki
 from src.exceptions import InvalidConfigurationException
-from src.database_connectors.graphdb import GraphDB
 from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, get_vocab_format
 
 
@@ -23,21 +22,17 @@ def construct_database(db_type: str = "graphdb") -> DatabaseConnector:
     Create an instance of a DatabaseConnector
     :return: 
     """
-    sparql_endpoint = os.environ.get("SPARQL_ENDPOINT", "")
-    store_base = os.environ.get("STORE_BASE", sparql_endpoint)
-    if db_type == "graphdb":
-        return GraphDB(
-            sparql_endpoint,
-            os.environ.get("ADMIN_USERNAME", ""), # GraphDB has no default username/password
-            os.environ.get("ADMIN_PASSWORD", "")
-        )
-    if db_type == "fuseki":
-        return Fuseki(
-            store_base,
-            os.environ.get("ADMIN_USERNAME", "admin"), # Fuseki default username
-            os.environ.get("ADMIN_PASSWORD", "")
-        )
-    raise InvalidConfigurationException(f"Database type '{db_type}' not known/supported")
+    module_name = f"src.database_connectors.{db_type}"
+    try:
+        module = importlib.import_module(module_name)
+    except ModuleNotFoundError:
+        raise InvalidConfigurationException(f"Database type '{db_type}' not known/supported")
+    if not hasattr(module, "create_connector"):
+        raise InvalidConfigurationException(f"'{db_type}' misses 'create_connector' function")
+    connector =  module.create_connector()
+    if not isinstance(connector, DatabaseConnector):
+        raise InvalidConfigurationException(f"'{db_type}' doesn't extend DatabaseConnector")
+    return connector
 
 
 def append_file(source: IO, dest: str):

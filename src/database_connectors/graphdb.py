@@ -1,11 +1,25 @@
 """
 This file contains functions for interacting with GraphDB
 """
+import os
 from typing import TextIO
 
 import requests
 
 from src.database import DatabaseConnector, SparqlEndpoints, Credentials
+
+
+def create_connector() -> DatabaseConnector:
+    """
+    Create instance
+    :return:
+    """
+    sparql_endpoint = os.environ.get("SPARQL_ENDPOINT", "")
+    return GraphDB(
+        sparql_endpoint,
+        os.environ.get("ADMIN_USERNAME", ""), # GraphDB has no default username/password
+        os.environ.get("ADMIN_PASSWORD", "")
+    )
 
 
 class GraphDB(DatabaseConnector):

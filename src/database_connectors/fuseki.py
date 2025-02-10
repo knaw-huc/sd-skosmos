@@ -1,12 +1,26 @@
 """
 This file contains functions for interacting with Fuseki
 """
+import os
 from typing import TextIO
 
 import requests
 
 from src.database import DatabaseConnector, SparqlEndpoints, Credentials
 
+
+def create_connector() -> DatabaseConnector:
+    """
+    Create instance
+    :return:
+    """
+    sparql_endpoint = os.environ.get("SPARQL_ENDPOINT", "")
+    store_base = os.environ.get("STORE_BASE", sparql_endpoint)
+    return Fuseki(
+        store_base,
+        os.environ.get("ADMIN_USERNAME", "admin"), # Fuseki default username
+        os.environ.get("ADMIN_PASSWORD", "")
+    )
 
 class Fuseki(DatabaseConnector):
     """
