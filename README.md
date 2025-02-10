@@ -151,5 +151,69 @@ source:
     Authorization: Bearer your-token-here
 ```
 
+## Database/Triple Store Types
+By default, this Skosmos setup supports two triple store types: Fuseki and GraphDB. However, it is possible to extend
+this by adding a custom database connector to the `src/database_connectors` folder (see below). The type of database
+can be set using the `DATABASE_TYPE` environment variable of the `sd-skosmos-loader` container, and adjusting the
+`SPARQL_ENDPOINT` of both the `sd-skosmos` and `sd-skosmos-loader` containers accordingly (see the container
+configuration options above). Some database types may require additional configuration. The two options supported
+out-of-the-box will be explained below.
+
+### Configure GraphDB
+For using GraphDB, set the following environment variables for the `sd-skosmos` container:
+
+```shell
+SPARQL_ENDPOINT=http://graphdb-location:7200/repositories/skosmos
+```
+
+And these for the `sd-skosmos-loader`:
+
+```shell
+DATABASE_TYPE=graphdb
+SPARQL_ENDPOINT=http://graphdb-location:7200/repositories/skosmos
+ADMIN_USERNAME=admin-username
+ADMIN_PASSWORD=super-secret-password
+```
+
+In both cases, `skosmos` can be replaced with whatever you wish to call your repository.
+
+### Configure Fuseki
+
+For using Fuseki, set the following environment variables for the `sd-skosmos` container:
+
+```shell
+SPARQL_ENDPOINT=http://fuseki-location:3030/skosmos/sparql
+```
+
+And these for the `sd-skosmos-loader`:
+
+```shell
+DATABASE_TYPE=fuseki
+SPARQL_ENDPOINT=http://fuseki-location:3030/skosmos/sparql
+STORE_BASE=http://fuseki-location:3030/skosmos
+ADMIN_USERNAME=admin-username
+ADMIN_PASSWORD=super-secret-password
+```
+
+In both cases, `skosmos` can be replaced with whatever you wish to call your repository.
+
+Note that the `SPARQL_ENDPOINT` should be the same as the one used for the `sd-skosmos` container, as that is used for
+generating the Skosmos config. It is added for consistency with the other.
+
+
+### Adding another database
+Database connectors can be found in `src/database_connectors`. The value for `DATABASE_TYPE` corresponds to one of the
+python files in this directory. In order to add support for another kind of database, you can create a new file in this
+directory. It should have a function called `create_connector` which returns an instance of a class which extends the
+`src.database.DatabaseConnector` abstract base class. The other connectors (`graphdb.py` and `fuseki.py`) can be used
+for reference.
+
+The base class deals with SPARQL operations which are used for keeping track of which vocabularies are
+loaded and when they were last updated. These methods should not need to be changed, if the database type correctly
+implements SPARQL. You will need to create a `setup` method for creating the Skosmos repository if it doesn't exist
+yet, and an `add_vocabulary` method which deals with importing vocabularies from a file. There is a helper method
+`sparql_http_update` which can be used if the database supports the SPARQL HTTP API.
+
+
 ## License
 [MIT License](LICENSE.md)
