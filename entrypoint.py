@@ -25,8 +25,8 @@ def construct_database(db_type: str = "graphdb") -> DatabaseConnector:
     module_name = f"src.database_connectors.{db_type}"
     try:
         module = importlib.import_module(module_name)
-    except ModuleNotFoundError:
-        raise InvalidConfigurationException(f"Database type '{db_type}' not known/supported")
+    except ModuleNotFoundError as e:
+        raise InvalidConfigurationException(f"Database type '{db_type}' not known/supported") from e
     if not hasattr(module, "create_connector"):
         raise InvalidConfigurationException(f"'{db_type}' misses 'create_connector' function")
     connector =  module.create_connector()
