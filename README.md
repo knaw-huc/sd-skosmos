@@ -56,6 +56,14 @@ but they can also be loaded from an external source. See the example yaml files 
 The yaml file is used for configuring how to load the vocabulary, and whether it needs to be refreshed
 at a certain interval. Refreshing is mainly useful when the vocabulary is loaded from an external source.
 
+> #### About supported types
+> When importing vocabularies, keep in mind that you can import any file type which is supported by the database you
+> use. Some file types are treated differently by different databases. An example is TriG: GraphDB puts all triples and quads
+> from the file into the graph we tell it to use (the `skosmos:sparqlGraph` from the `{vocab-name}.config` file), while
+> Fuseki only imports the triples that are in the default graph in the TriG file. Any quads in the file will be ignored.
+> 
+> Please check the behavior of your chosen database to determine which format you wish to use.
+
 #### Local Files Example
 ```yaml
 config:

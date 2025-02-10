@@ -30,8 +30,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
-#      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
+#      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
       - DATA=${DATA:-/data}
     networks:
       - skosmos
@@ -50,12 +50,12 @@ services:
       context: .
       dockerfile: loader.Dockerfile
     environment:
-      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
-#      - STORE_BASE=http://host.docker.internal:3030/skosmos
-#      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
-#      - ADMIN_PASSWORD=admin
+#      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
+      - STORE_BASE=http://host.docker.internal:3030/skosmos
+      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
+      - ADMIN_PASSWORD=admin
       - DATA=${DATA:-/data}
-      - DATABASE_TYPE=graphdb
+      - DATABASE_TYPE=fuseki
     networks:
       - skosmos
     volumes:
