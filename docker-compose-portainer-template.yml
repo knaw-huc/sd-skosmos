@@ -47,7 +47,7 @@ services:
       - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
       - STORE_BASE=http://graphdb:7200/repositories/skosmos
       - DATA=${DATA:-/data}
-      - DATABASE_TYPE={$DATABASE_TYPE:-graphdb}
+      - DATABASE_TYPE=${DATABASE_TYPE:-graphdb}
     networks:
       - traefik-public
     volumes:
