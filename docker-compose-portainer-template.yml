@@ -20,7 +20,7 @@ services:
     networks:
       - traefik-public
   template-skosmos:
-    image: ${IMAGE:-ghcr.io/knaw-huc/sd-skosmos:v2.18.1-1.5.1}
+    image: ${IMAGE:-ghcr.io/knaw-huc/sd-skosmos:v2.18.1-1.6.0}
     environment:
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
       - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
@@ -41,11 +41,13 @@ services:
       - graphdb
       - template-skosmos-loader
   template-skosmos-loader:
-    image: ghcr.io/knaw-huc/sd-skosmos-loader:v2.18.1-1.5.1
+    image: ghcr.io/knaw-huc/sd-skosmos-loader:v2.18.1-1.6.0
     environment:
       - ADMIN_PASSWORD=$ADMIN_PASSWORD
       - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
+      - STORE_BASE=http://graphdb:7200/repositories/skosmos
       - DATA=${DATA:-/data}
+      - DATABASE_TYPE={$DATABASE_TYPE:graphdb}
     networks:
       - traefik-public
     volumes:
