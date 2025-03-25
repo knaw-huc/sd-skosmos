@@ -1,7 +1,7 @@
 FROM library/php:8.1-apache
 
 # set skosmos release version and download link
-ARG version=v2.18.1-1.0.0
+ARG version=v2.18.1-1.1.0
 ARG SKOSMOS_TARGZ_RELEASE_URL=https://github.com/knaw-huc/Skosmos/archive/refs/tags/${version}.tar.gz
 
 # general server setup and locale
