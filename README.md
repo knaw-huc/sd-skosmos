@@ -1,11 +1,18 @@
-# SKOSMOS
-SKOSMOS container setup
+# SD-SKOSMOS
+A Skosmos vocabulary loader and container setup used by the HuC.
 
 ## Run with docker-compose
-### Prepare
-Create a new repo with a `docker-compose.yml` based on [docker-compose-portainer-template.yml](docker-compose-portainer-template.yml) and a `Dockerfile` based on [Dockerfile-portainer-template](Dockerfile-portainer-template). Replace all instances of `template` appropiately.
+This repository contains two docker-compose files. One for local testing (`docker-compose.yml`) and
+one as an example Portainer-based setup (`docker-compose-portainer-template.yml`).
 
-Put your vocabularies as `*.ttl` in the `data/` directory accompanied by a `*.config` file. See [countries.ttl.example](./data/countries.ttl.example) and [countries.config.example](./data/countries.config.example) for an example. To try out the example: remove the `.example` suffix.
+The `docker-compose.yml` file contains configuration options for both GraphDB and Fuseki. Pick one,
+and comment the unneeded bits out. See the configuration details in this README to find  out what to
+use when.
+
+For the Portainer setup, it's recommended to create your own Docker Compose file based on `docker-compose-portainer-template.yml`.
+The example setup uses Traefik, but other setups are possible as well of course. Please use the example file together with the below
+section on containers and their required environment variables to create your own production Compose file to make sure
+that it matches your needs.
 
 ### Containers
 This Skosmos setup requires two containers to run (plus additionally a triple store, if that is not hosted externally).
@@ -33,17 +40,17 @@ It runs side by side with the Skosmos container and uses cron to run the import 
 | `ADMIN_PASSWORD`  | The admin password for the triple store.                                                                                                                                                            |
 | `DATA`            | The location of the 'data' folder containing the vocabulary configuration files                                                                                                                     |
 
+
 ### To start
 ```bash
-$ docker-compose build
-$ docker-compose up -d
+docker-compose build
+docker-compose up -d
 ```
 
 ### To stop:
 ```bash
-$ docker-compose down
+docker-compose down
 ```
-
 ### adapt config.ttl
 To overwrite [config-docker-compose.ttl](config-docker-compose.ttl) put a `config.ttl` in `data/`. To add classifications put them in a `config-ext.ttl` in `data/`.
 
@@ -61,7 +68,7 @@ at a certain interval. Refreshing is mainly useful when the vocabulary is loaded
 > use. Some file types are treated differently by different databases. An example is TriG: GraphDB puts all triples and quads
 > from the file into the graph we tell it to use (the `skosmos:sparqlGraph` from the `{vocab-name}.config` file), while
 > Fuseki only imports the triples that are in the default graph in the TriG file. Any quads in the file will be ignored.
-> 
+>
 > Please check the behavior of your chosen database to determine which format you wish to use.
 
 #### Local Files Example
@@ -158,6 +165,55 @@ source:
   headers:
     Authorization: Bearer your-token-here
 ```
+
+### Tweaking datasets
+When you wish to append data to an externally loaded dataset without modifying the original data, for instance to add
+a label to a property so it displays in Skosmos, you can add a "tweaks" entry to the yaml file. This supports the same
+types of files as the `source`, and any triples in this location will be appended to the source dataset after it's loaded.
+
+#### Tweaks Example
+```yaml
+config:
+  refresh: Yes
+  refreshInterval: 1 # Hours
+  type: fetch
+  location: https://example.com/path/to/vocabulary.config
+
+source:
+  type: fetch
+  location: https://example.com/path/to/vocabulary.ttl
+  headers:
+    X-Custom-Header: Set header values here
+
+tweaks:
+  type: file
+  location: vocabulary-tweaks.ttl
+```
+
+### Fallback/mirror setup
+It is possible to set up a fallback data file or a mirror URL for when the primary source of the data is not available.
+When it fails to load (when using an external source, like a fetch or SPARQL query) this dataset will be loaded instead.
+An example configuration can be seen below (it adds a local file, for when the external fetch fails):
+
+```yaml
+config:
+  refresh: Yes
+  refreshInterval: 1 # Hours
+  type: fetch
+  location: https://example.com/path/to/vocabulary.config
+
+source:
+  type: fetch
+  location: https://example.com/path/to/vocabulary.ttl
+  headers:
+    X-Custom-Header: Set header values here
+
+fallback:
+  type: file
+  location: vocabulary.ttl
+```
+
+The `fallback` configuration supports all types you can use for `source`.
 
 ## Database/Triple Store Types
 By default, this Skosmos setup supports two triple store types: Fuseki and GraphDB. However, it is possible to extend

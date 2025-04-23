@@ -1,0 +1,12 @@
+config:
+  refresh: Yes
+  refreshInterval: 1
+  type: file
+  location: countries.config
+source:
+  type: file
+  location: countries.ttl
+  format: ttl
+tweaks:
+  type: file
+  location: countries-tweaks.ttl

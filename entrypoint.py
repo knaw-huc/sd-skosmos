@@ -111,7 +111,12 @@ def main() -> None:
 
             if reload:
                 print(f"Loading vocabulary {vocab}")
-                load_vocabulary(database, vocab_config['source'], data, graph)
+                try:
+                    load_vocabulary(database, vocab_config['source'], data, graph)
+                except Exception:
+                    if "fallback" in vocab_config:
+                        print("Primary source failed to load. Using fallback")
+                        load_vocabulary(database, vocab_config['fallback'], data, graph)
                 if "tweaks" in vocab_config:
                     print(f"Tweaks found for {vocab}. Loading")
                     load_vocabulary(database, vocab_config['tweaks'], data, graph, True)

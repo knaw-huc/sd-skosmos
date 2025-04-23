@@ -22,6 +22,8 @@ services:
         -Dentity-pool-implementation=transactional
         -Dhealth.max.query.time.seconds=500
         -Dreuse.vars.in.subselects=true
+    networks:
+      - skosmos
     ports:
       - ${GRAPHDB_PORT:-7200}:7200
   skosmos:
@@ -30,8 +32,8 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-#      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
-      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
+      - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
+#      - SPARQL_ENDPOINT=http://fuseki:3030/skosmos/sparql
       - DATA=${DATA:-/data}
     networks:
       - skosmos
@@ -50,12 +52,13 @@ services:
       context: .
       dockerfile: loader.Dockerfile
     environment:
-#      - SPARQL_ENDPOINT=http://host.docker.internal:7200/repositories/skosmos
-      - STORE_BASE=http://host.docker.internal:3030/skosmos
-      - SPARQL_ENDPOINT=http://host.docker.internal:3030/skosmos/sparql
+      - STORE_BASE=http://graphdb:7200/repositories/skosmos
+      - SPARQL_ENDPOINT=http://graphdb:7200/repositories/skosmos
+#      - STORE_BASE=http://fuseki:3030/skosmos
+#      - SPARQL_ENDPOINT=http://fuseki:3030/skosmos/sparql
       - ADMIN_PASSWORD=admin
       - DATA=${DATA:-/data}
-      - DATABASE_TYPE=fuseki
+      - DATABASE_TYPE=graphdb
     networks:
       - skosmos
     volumes:
