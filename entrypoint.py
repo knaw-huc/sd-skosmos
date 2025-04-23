@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import IO
 
 from src.database import DatabaseConnector
-from src.exceptions import InvalidConfigurationException
+from src.exceptions import InvalidConfigurationException, VocabularyLoadingException
 from src.vocabularies import get_file_from_config, get_graph, load_vocab_yaml, get_vocab_format
 
 
@@ -51,7 +51,7 @@ def append_file(source: IO, dest: str):
             df.write(line)
 
 
-def load_vocabulary(database: DatabaseConnector, source_data: dict, data_dir: str,
+def load_vocabulary_data(database: DatabaseConnector, source_data: dict, data_dir: str,
                     graph_name: str, append: bool = False) -> None:
     """
     Load a vocabulary using the source data from the yaml.
@@ -64,6 +64,29 @@ def load_vocabulary(database: DatabaseConnector, source_data: dict, data_dir: st
     """
     with get_file_from_config(source_data, data_dir) as vocab_file:
         database.add_vocabulary(vocab_file, graph_name, get_vocab_format(source_data), append)
+
+
+def load_vocabulary(database: DatabaseConnector, configuration: dict, data_dir: str,
+                    graph_name: str) -> None:
+    """
+    Load a vocabulary and its tweaks using the configuration from the yaml.
+    :param database:
+    :param configuration:
+    :param data_dir:
+    :param graph_name:
+    :return:
+    """
+    try:
+        load_vocabulary_data(database, configuration["source"], data_dir, graph_name)
+    except VocabularyLoadingException as e:
+        if "fallback" in configuration:
+            print("Primary source failed to load. Using fallback")
+            load_vocabulary_data(database, configuration["fallback"], data_dir, graph_name)
+        else:
+            raise e
+    if "tweaks" in configuration:
+        print(f"Tweaks found for {graph_name}. Loading")
+        load_vocabulary_data(database, configuration["tweaks"], data_dir, graph_name, True)
 
 
 def main() -> None:
@@ -111,15 +134,7 @@ def main() -> None:
 
             if reload:
                 print(f"Loading vocabulary {vocab}")
-                try:
-                    load_vocabulary(database, vocab_config['source'], data, graph)
-                except Exception:
-                    if "fallback" in vocab_config:
-                        print("Primary source failed to load. Using fallback")
-                        load_vocabulary(database, vocab_config['fallback'], data, graph)
-                if "tweaks" in vocab_config:
-                    print(f"Tweaks found for {vocab}. Loading")
-                    load_vocabulary(database, vocab_config['tweaks'], data, graph, True)
+                load_vocabulary(database, vocab_config, data, graph)
                 if graph in loaded_vocabs:
                     database.update_timestamp(graph, int(time.time()))
                 else:

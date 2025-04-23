@@ -7,10 +7,11 @@ import urllib.request
 import urllib.parse
 from pathlib import Path
 from typing import IO, TextIO
+from urllib.error import URLError
 
 import yaml
 
-from src.exceptions import InvalidConfigurationException, UnknownAuthenticationTypeException
+from src.exceptions import InvalidConfigurationException, UnknownAuthenticationTypeException, VocabularyLoadingException
 
 
 def get_type(extension: str) -> str:
@@ -69,44 +70,52 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
     """
     if config_data['type'] == 'file':
         return open(f"{data_dir}/{config_data['location']}", encoding='utf-8')
-    if config_data['type'] == 'fetch':
-        req = urllib.request.Request(config_data['location'])
-        if 'headers' in config_data:
-            for header, val in config_data['headers'].items():
-                req.add_header(header, val)
+    try:
+        if config_data['type'] == 'fetch':
+            req = urllib.request.Request(config_data['location'])
+            if 'headers' in config_data:
+                for header, val in config_data['headers'].items():
+                    req.add_header(header, val)
 
-        if 'auth' in config_data:
-            auth_data = config_data['auth']
-            req = set_auth_data(auth_data, config_data, req)
+            if 'auth' in config_data:
+                auth_data = config_data['auth']
+                req = set_auth_data(auth_data, config_data, req)
 
-        return urllib.request.urlopen(req)
-    if config_data['type'] == 'post':
-        endpoint = config_data['location']
-        body = config_data['body']
-        req = urllib.request.Request(endpoint, method='POST', data=json.dumps(body).encode('utf-8'))
-        req.add_header('Content-Type', 'application/json')
-        if 'headers' in config_data:
-            for header, val in config_data['headers'].items():
-                req.add_header(header, val)
-        return urllib.request.urlopen(req)
+            return urllib.request.urlopen(req)
+        if config_data['type'] == 'post':
+            endpoint = config_data['location']
+            body = config_data['body']
+            req = urllib.request.Request(
+                endpoint,
+                method='POST',
+                data=json.dumps(body).encode('utf-8')
+            )
+            req.add_header('Content-Type', 'application/json')
+            if 'headers' in config_data:
+                for header, val in config_data['headers'].items():
+                    req.add_header(header, val)
+            return urllib.request.urlopen(req)
 
-    if config_data['type'] == 'sparql':
-        with open(f"{data_dir}/{config_data['query_location']}", encoding='utf-8') as file:
-            sparql_query = file.read()
-        endpoint = config_data['location']
-        data_dict = {'query': sparql_query}
-        req = urllib.request.Request(
-            endpoint,
-            method='POST',
-            data=urllib.parse.urlencode(data_dict).encode()
-        )
-        req.add_header('Accept', 'text/turtle')
-        if 'headers' in config_data:
-            for header, val in config_data['headers'].items():
-                req.add_header(header, val)
+        if config_data['type'] == 'sparql':
+            with open(f"{data_dir}/{config_data['query_location']}", encoding='utf-8') as file:
+                sparql_query = file.read()
+            endpoint = config_data['location']
+            data_dict = {'query': sparql_query}
+            req = urllib.request.Request(
+                endpoint,
+                method='POST',
+                data=urllib.parse.urlencode(data_dict).encode()
+            )
+            req.add_header('Accept', 'text/turtle')
+            if 'headers' in config_data:
+                for header, val in config_data['headers'].items():
+                    req.add_header(header, val)
 
-        return urllib.request.urlopen(req)
+            return urllib.request.urlopen(req)
 
+    except URLError as e:
+        print(f"Error '{e}'")
+        raise VocabularyLoadingException
     raise InvalidConfigurationException("Unknown type")
 
 

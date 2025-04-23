@@ -8,6 +8,11 @@ class InvalidConfigurationException(Exception):
     Exception raised when there is a misconfiguration.
     """
 
+class VocabularyLoadingException(Exception):
+    """
+    Exception raised when there is a problem loading the vocabulary.
+    """
+
 
 class UnknownAuthenticationTypeException(InvalidConfigurationException):
     """
