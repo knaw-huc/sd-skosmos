@@ -11,7 +11,11 @@ from urllib.error import URLError
 
 import yaml
 
-from src.exceptions import InvalidConfigurationException, UnknownAuthenticationTypeException, VocabularyLoadingException
+from src.exceptions import (
+    InvalidConfigurationException,
+    UnknownAuthenticationTypeException,
+    VocabularyLoadingException
+)
 
 
 def get_type(extension: str) -> str:
@@ -115,7 +119,7 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
 
     except URLError as e:
         print(f"Error '{e}'")
-        raise VocabularyLoadingException
+        raise VocabularyLoadingException from e
     raise InvalidConfigurationException("Unknown type")
 
 
