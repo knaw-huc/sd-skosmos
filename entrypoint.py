@@ -7,7 +7,6 @@ The python entrypoint initializes the Skosmos dataset before starting the applic
 import glob
 import importlib
 import os
-import os.path
 import shutil
 import time
 from pathlib import Path
@@ -130,13 +129,8 @@ def main() -> None:
                 reload = True
             elif vocab_config['config'].get('refresh', False):
                 interval = vocab_config['config'].get('refreshInterval', 0)
-                refr_f = vocab_config['config'].get('refreshFile', None)
-                if refr_f and os.path.exists(refr_f) and os.path.isfile(refr_f):
-                    reload = True
-                    os.remove(refr_f)
-                else:
-                    diff = (time.time() - loaded_vocabs[graph]) / 3600
-                    reload = diff > interval
+                diff = (time.time() - loaded_vocabs[graph]) / 3600
+                reload = diff > interval
 
             if reload:
                 print(f"Loading vocabulary {vocab}")
