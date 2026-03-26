@@ -17,7 +17,7 @@ from src.exceptions import (
     VocabularyLoadingException
 )
 
-from src.xlsx2ttl import get_ttl
+from xlsx2ttl import get_ttl
 
 def get_type(extension: str) -> str:
     """
@@ -117,16 +117,18 @@ def get_file_from_config(config_data: dict, data_dir: str) -> TextIO:
                     req.add_header(header, val)
 
             return urllib.request.urlopen(req)
-        if config_data['type'] == 'skosplay':
-            #geeft ons <file>@<google doc id>
-            try:
-                [filename,identifier] = config_data['location'].split('@')
-            except Exception as e:
-                print(f"Error '{e}'")
-                print('config_data: ' + config_data['location'])
-                raise VocabularyLoadingException from e
-            result = get_ttl(identifier,filename)
-            return open(result, encoding='utf-8')
+            if config_data['type'] == 'skosplay':
+                #geeft ons <file>@<google doc id>
+                md = re.search(r'^([^@]+)@([.]+)$',config_data['location'])
+                filename = md[1]
+                identifier = md[2]
+                # create a temp directory
+                # download the xslx to the temp
+                # skosplay convert to the zip
+                # unzip & return <file>.ttl
+                # return open(f"{temp_dir}/{file}.ttl", encoding='utf-8')
+                result = get_ttl(identifier,filename)
+                return open(result, encoding='utf-8')
     except URLError as e:
         print(f"Error '{e}'")
         raise VocabularyLoadingException from e

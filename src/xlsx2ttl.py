@@ -21,12 +21,15 @@ def get_ttl(identifier,filename):
         return None
     # write zip-file
     uitvoer = f'{temp_dir}/result.zip'
-    cmd = ['java', '-jar', '/app/src/xls2rdf-app-3.2.1-onejar.jar', 'convert', '-f', 'text/turtle', '--input', file_path, '-o', uitvoer]
-    try: 
-        p = subprocess.run(cmd,capture_output=True)
-    except:
-        print('Exception Handler')
-        return None
+    cmd = ['java', '-jar', 'xls2rdf-app-3.2.1-onejar.jar', 'convert', '-f', 'text/turtle', '--input', file_path, '-o', uitvoer]
+    p = subprocess.Popen(cmd)
+    try:
+        p.wait()
+    except KeyboardInterrupt:
+        p.send_signal(signal.SIGINT)
+        p.wait()
+    except subprocess.CalledProcessError as e:
+        end_prog(e.returncode)
     # unzip
     zipfile = ZipFile(uitvoer)
     zipfile.printdir()
@@ -34,7 +37,7 @@ def get_ttl(identifier,filename):
     # get requested file
     for f in listdir(temp_dir):
         print(f)
-        if f.endswith(filename+'.ttl'):
+        if f.endswith(filename):
             return f'{temp_dir}/{f}'
     return None
 
