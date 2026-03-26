@@ -11,7 +11,6 @@ COPY config-docker-compose.ttl /app/
 COPY config-docker-compose.ttl /config/
 COPY skosmos-repository.ttl /app/
 COPY crontask.sh /app/
-COPY skos-play-0.9.1.war /app/
 
 COPY src /app/src
 COPY entrypoint.py /app/entrypoint.py
