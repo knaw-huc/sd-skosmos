@@ -33,7 +33,6 @@ def get_ttl(identifier,filename):
     zipfile.extractall(temp_dir)
     # get requested file
     for f in listdir(temp_dir):
-        print(f)
         if f.endswith(filename+'.ttl'):
             return f'{temp_dir}/{f}'
     return None
