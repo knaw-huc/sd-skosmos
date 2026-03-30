@@ -71,7 +71,6 @@ services:
     image: refresh:latest
     volumes:
       - ./data:/data
-      - ./data/refresh/refresh.yml:/app/src/refresh.yml
     networks:
       - skosmos
     ports:

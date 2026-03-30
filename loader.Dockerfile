@@ -17,5 +17,7 @@ COPY entrypoint.py /app/entrypoint.py
 
 COPY requirements.txt /app/
 RUN pip install -r /app/requirements.txt
+RUN wget -O /app/src/skos-play-cli-0.9.1-onejar.jar "https://github.com/sparna-git/skos-play/releases/download/0.9.1/skos-play-cli-0.9.1-onejar.jar"
+ 
 
 ENTRYPOINT ["/app/entrypoint_cron.sh"]
