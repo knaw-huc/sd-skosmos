@@ -24,8 +24,10 @@ def get_ttl(identifier,filename):
     cmd = ['java', '-jar', '/app/src/xls2rdf-app-3.2.1-onejar.jar', 'convert', '-f', 'text/turtle', '--input', file_path, '-o', uitvoer]
     try: 
         p = subprocess.run(cmd,capture_output=True)
-    except:
+        p.check_returncode()
+    except Exception as exc:
         print('Exception Handler')
+        print(exc)
         return None
     # unzip
     zipfile = ZipFile(uitvoer)
