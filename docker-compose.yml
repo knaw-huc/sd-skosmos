@@ -67,6 +67,14 @@ services:
     depends_on:
       - graphdb
       - fuseki
+  refresh:
+    image: refresh:latest
+    volumes:
+      - ./data:/data
+    networks:
+      - skosmos
+    ports:
+      - 88:80
 
 networks:
   skosmos:
