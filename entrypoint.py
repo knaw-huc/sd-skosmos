@@ -125,7 +125,7 @@ def main() -> None:
             with get_file_from_config(vocab_config['config'], data) as config:
                 graph = get_graph(config)
                 print(f"Graph: {graph}")
-                print(f"vocab[{vocab}][{vocab_config['config'].get('refresh', False)}][{vocab_config['config'].get('refreshInterval', 0)}][{vocab_config['config'].get('refreshFile', None)}]")
+                #print(f"vocab[{vocab}][{vocab_config['config'].get('refresh', False)}][{vocab_config['config'].get('refreshInterval', 0)}][{vocab_config['config'].get('refreshFile', None)}]")
 
             reload = False
             if graph not in loaded_vocabs:
@@ -136,14 +136,14 @@ def main() -> None:
                 refr_f = vocab_config['config'].get('refreshFile', None)
                 if refr_f and os.path.exists(refr_f) and os.path.isfile(refr_f):
                     reload = True
-                    print(f"(re)load[{reload}] as refreshFile[{vocab_config['config'].get('refreshFile', None)}] exists")
+                    print(f"(re)load[{reload}] as refreshFile[{refr_f}] exists")
                     os.remove(refr_f)
                 elif interval:
                     diff = (time.time() - loaded_vocabs[graph]) / 3600
                     reload = diff > interval
-                    print(f"(re)load[{reload}] due to refreshInterval[{vocab_config['config'].get('refreshInterval', 0)}][{diff}]?")
+                    print(f"(re)load[{reload}] due to refreshInterval[{diff}]>[{interval}]?")
 
-            print(f"vocab[{vocab}](re)load[{reload}]")
+            print(f"vocab [{vocab}](re)load[{reload}]")
             if reload:
                 print(f"Loading vocabulary {vocab}")
                 load_vocabulary(database, vocab_config, data, graph)

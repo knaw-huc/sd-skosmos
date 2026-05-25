@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from os import listdir
-import requests
-import signal
 import subprocess
 import tempfile
 from zipfile import ZipFile
+
+import requests
 
 def get_ttl(identifier,filename):
     # read xslx
@@ -21,8 +21,9 @@ def get_ttl(identifier,filename):
         return None
     # write zip-file
     uitvoer = f'{temp_dir}/result.zip'
-    cmd = ['java', '-jar', '/app/src/xls2rdf-app-3.2.1-onejar.jar', 'convert', '-f', 'text/turtle', '--input', file_path, '-o', uitvoer]
-    try: 
+    cmd = ['java', '-jar', '/app/src/xls2rdf-app-3.2.1-onejar.jar',
+           'convert', '-f', 'text/turtle', '--input', file_path, '-o', uitvoer]
+    try:
         p = subprocess.run(cmd,capture_output=True)
         p.check_returncode()
     except Exception as exc:
@@ -38,4 +39,3 @@ def get_ttl(identifier,filename):
         if f.endswith(filename+'.ttl'):
             return f'{temp_dir}/{f}'
     return None
-
