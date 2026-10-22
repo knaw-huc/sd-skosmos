@@ -1,7 +1,7 @@
-FROM library/php:8.1-apache
+FROM library/php:8.2.35-apache-bookworm@sha256:5714c8607608e50d880a5f222fab556edecd4a11b9c50c81fce1c7932c1cf604
 
 # set skosmos release version and download link
-ARG version=v3.1
+ARG version=v3.4
 #ARG SKOSMOS_TARGZ_RELEASE_URL=https://github.com/knaw-huc/Skosmos/archive/refs/tags/${version}.tar.gz
 ARG SKOSMOS_TARGZ_RELEASE_URL=https://github.com/NatLibFi/Skosmos/archive/refs/tags/${version}.tar.gz
 
